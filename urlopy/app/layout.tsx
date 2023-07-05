@@ -1,3 +1,4 @@
+"use client"
 import Navbar from './Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
