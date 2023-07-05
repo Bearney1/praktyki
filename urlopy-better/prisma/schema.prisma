@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
+    provider = "postgresql"
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -48,14 +48,25 @@ model Session {
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+    user
+    admin
+}
+
 model User {
     id            String    @id @default(cuid())
     name          String?
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    role         Role    @default(user) 
     accounts      Account[]
     sessions      Session[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    Project       Project[]
+    Vacation      Vacation[] @relation("user_vacation")
+    
 }
 
 model VerificationToken {
@@ -64,4 +75,26 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Project {
+    id         String   @id @default(cuid())
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    name       String
+    users      User[]
+    vacation   Vacation[] @relation("project_vacation")
+}
+
+model Vacation {
+    id        String   @id @default(cuid())
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    startDate  DateTime 
+    endDate    DateTime 
+    user       User     @relation("user_vacation",fields: [userId], references: [id], onDelete: Cascade)
+    userId     String
+    projectId  String
+    project    Project  @relation("project_vacation",fields: [projectId], references: [id], onDelete: Cascade)
+    status     String   @default("pending")
 }
