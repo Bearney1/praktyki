@@ -4,11 +4,11 @@ import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { Input, Modal, Select } from "@mantine/core";
 import { api } from "~/utils/api";
-import { useState } from "react";
 import { useForm } from "@mantine/form";
 
 export default function Page() {
   const { data, status } = api.vacation.getAllForUser.useQuery();
+  const {mutate : addVacation} = api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
 
   const color = (stat: string) => {
@@ -35,13 +35,16 @@ export default function Page() {
 
 
   return (
-    <div className="dark flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+    <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {status == "success" && (
         <div className="container mx-auto py-10">
           {/* <dialog ref={ref} className="modal"> */}
           
           <Modal opened={opened} onClose={close} radius="lg">
-          <form onSubmit={form.onSubmit((values) => console.log(values))}>
+          <form onSubmit={form.onSubmit((values) => values.date.length > 0 && addVacation({
+            startDate: values.date[0]!,
+            endDate: values.date[1]!,
+          }))}>
             <div className="text-2xl mb-4 font-bold">Dodaj urlop</div>
             <DatePickerInput
               placeholder="Wybierz datę"
@@ -73,16 +76,16 @@ export default function Page() {
             </button>
           </div>
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table className="w-full text-left text-sm text-neutral-500 dark:text-neutral-400">
-              <thead className="bg-neutral-50 text-xs uppercase text-neutral-700 dark:bg-neutral-700 dark:text-neutral-400">
+            <table className="table text-md">
+              <thead className="text-white text-xl">
                 <tr>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" >
                     Start
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" >
                     End
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" >
                     Status
                   </th>
                 </tr>
@@ -91,19 +94,19 @@ export default function Page() {
                 {data.map((vacation) => (
                   <tr
                     key={vacation.id}
-                    className="border-b bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800"
+                    
                   >
-                    <th scope="row" className="px-6 py-4 text-white">
+                    <th scope="row" className=" text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
                     </th>
-                    <td className="px-6 py-4 text-white">
+                    <td className=" text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="">
                       <div
                         className={`${color(
                           vacation.status
-                        )} w-min px-2 py-2 font-bold`}
+                        )} w-min font-bold`}
                       >
                         {vacation.status.toUpperCase()}
                       </div>

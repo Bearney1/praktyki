@@ -30,8 +30,8 @@ export const vacationRouter = createTRPCRouter({
         return r;
     }),
     createVacation: protectedProcedure.input(z.object({
-        startDate: z.string(),
-        endDate: z.string(),
+        startDate: z.date(),
+        endDate: z.date(),
     })).mutation(
         async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
@@ -56,11 +56,19 @@ export const vacationRouter = createTRPCRouter({
                 data: {
                     startDate: input.startDate,
                     endDate: input.endDate,
-                    projectId: project?.id,
-                    userId: userId,
-                    status: "pending"
+                    user: {
+                        connect: {
+                            id: userId
+                        }
+                    },
+                    project: {
+                        connect: {
+                            id: project?.id
+                        }
+                    }
                 }
             });
+
             return r;
         }
     )
