@@ -13,7 +13,7 @@ enum VacationType {
 
 export default function Page() {
   const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
-  const { mutate: addVacation } = api.vacation.createVacation.useMutation();
+  const { mutateAsync: addVacation } = api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
 
   const color = (stat: string) => {
@@ -38,14 +38,15 @@ export default function Page() {
   });
 
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
+    console.log(values.date)
     values.date[0] && values.date[1] &&
       addVacation({
         startDate: values.date[0],
         endDate: values.date[1],
         reason: values.why,
         workingType: values.type as VacationType,
-      });
-      refetch().then(() => close()).catch(e => console.log(e));
+      }).then(() => refetch().then(() => close()).catch(e => console.log(e))).catch((e) => console.log(e));
+      
       
 
   };
@@ -114,7 +115,7 @@ export default function Page() {
                       {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
                     </th>
                     <td className="text-white">
-                      {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
+                      {Intl.DateTimeFormat("pl-PL").format(vacation.endDate)}
                     </td>
                     <td className="text-white max-w-[150px]">
                       {vacation.reason}
