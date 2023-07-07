@@ -58,7 +58,7 @@ export default function Page() {
 
           <Modal opened={opened} onClose={close} radius="lg">
             <form onSubmit={form.onSubmit(handleAdd)}>
-              <div className="mb-4 text-2xl font-bold">Dodaj urlop</div>
+              <div className="mb-4 text-2xl font-bold text-white">Dodaj urlop</div>
               <DatePickerInput
                 placeholder="Wybierz datę"
                 dropdownType="modal"
