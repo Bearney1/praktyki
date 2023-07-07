@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { MyVacation } from "~/pages/vacations/vacations";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -27,15 +26,7 @@ export const vacationRouter = createTRPCRouter({
             userId: ctx.session.user.id
             }
         });
-        r.map((v) => {
-            const vacation : MyVacation = {
-                id: v.id,
-                startDate: v.startDate,
-                endDate: v.endDate,
-                status: v.status,
-            }
-            return vacation;
-        });
+      
         return r;
     }),
     createVacation: protectedProcedure.input(z.object({

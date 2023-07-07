@@ -1,123 +1,16 @@
 // import React from "react";
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DatePickerInput } from "@mantine/dates";
+import { useDisclosure } from "@mantine/hooks";
+import { Input, Modal, Select } from "@mantine/core";
 import { api } from "~/utils/api";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import DialogForm from "./DialogForm";
-
-// import {
-//   ColumnDef,
-//   flexRender,
-//   getCoreRowModel,
-//   useReactTable,
-// } from "@tanstack/react-table"
-
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "@/components/ui/table"
-
-// import { columns } from "./vacations";
-// import { api } from "~/utils/api";
-
-// interface DataTableProps<TData, TValue> {
-//   columns: ColumnDef<TData, TValue>[]
-//   data: TData[]
-// }
-
-// function DataTable<TData, TValue>({
-//   columns,
-//   data,
-// }: DataTableProps<TData, TValue>) {
-//   const table = useReactTable({
-//     data,
-//     columns,
-//     getCoreRowModel: getCoreRowModel(),
-//   })
-
-//   return (
-//     <div className="rounded-md border">
-//       <Table>
-//         <TableHeader>
-//           {table.getHeaderGroups().map((headerGroup) => (
-//             <TableRow key={headerGroup.id}>
-//               {headerGroup.headers.map((header) => {
-//                 return (
-//                   <TableHead key={header.id}>
-//                     {header.isPlaceholder
-//                       ? null
-//                       : flexRender(
-//                           header.column.columnDef.header,
-//                           header.getContext()
-//                         )}
-//                   </TableHead>
-//                 )
-//               })}
-//             </TableRow>
-//           ))}
-//         </TableHeader>
-//         <TableBody>
-//           {table.getRowModel().rows?.length ? (
-//             table.getRowModel().rows.map((row) => (
-//               <TableRow
-//                 key={row.id}
-//                 data-state={row.getIsSelected() && "selected"}
-//               >
-//                 {row.getVisibleCells().map((cell) => (
-//                   <TableCell key={cell.id}>
-//                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
-//                   </TableCell>
-//                 ))}
-//               </TableRow>
-//             ))
-//           ) : (
-//             <TableRow>
-//               <TableCell colSpan={columns.length} className="h-24 text-center">
-//                 No results.
-//               </TableCell>
-//             </TableRow>
-//           )}
-//         </TableBody>
-//       </Table>
-//     </div>
-//   )
-// }
-
-// export default function Page() {
-//   const { data, status } = api.vacation.getAllForUser.useQuery();
-//   return (
-//     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
-//       {status == "success" && <div className="container mx-auto py-10">
-//       <DataTable columns={columns} data={data}  />
-//     </div>}
-//       {status == "loading" && <div className="text-4xl">Loading...</div>}
-//       {status == "error" && <div className="text-4xl">Error</div>}
-//     </div>
-//   );
-// }
+import { useState } from "react";
+import { useForm } from "@mantine/form";
 
 export default function Page() {
   const { data, status } = api.vacation.getAllForUser.useQuery();
+  const [opened, { open, close }] = useDisclosure(false);
+
   const color = (stat: string) => {
     switch (stat) {
       case "accepted":
@@ -130,48 +23,96 @@ export default function Page() {
         return "text-gray-300";
     }
   };
+  
+
+  const form = useForm({
+    initialValues: {
+      date: [new Date(), new Date()],
+      why: "",
+      type: "",
+    },
+  });
+
+
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+    <div className="dark flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {status == "success" && (
         <div className="container mx-auto py-10">
-          <div>
-            <Dialog>
-              <DialogTrigger><Button variant="destructive">Add vacation</Button></DialogTrigger>
-             <DialogForm />
-            </Dialog>
+          {/* <dialog ref={ref} className="modal"> */}
+          
+          <Modal opened={opened} onClose={close} radius="lg">
+          <form onSubmit={form.onSubmit((values) => console.log(values))}>
+            <div className="text-2xl mb-4 font-bold">Dodaj urlop</div>
+            <DatePickerInput
+              placeholder="Wybierz datę"
+              dropdownType="modal"
+              type="range"
+              mx="auto"
+              {...form.getInputProps('date')}
+            ></DatePickerInput>
+            <Input className="mt-2" placeholder="Powód" radius="md" {...form.getInputProps('why')}></Input>
+            <Select
+              data={[
+                { value: "remote", label: "Zdalna praca" },
+                { value: "office", label: "Praca w biurze" },
+              ]}
+              className="mt-2"
+              placeholder="Typ pracy"
+              radius="md"
+              {...form.getInputProps('type')}
+            />
+            <button className="btn mt-4 text-white hover:bg-black" type="submit">
+              Dodaj
+            </button>
+           </form>
+          </Modal>
+          
+          <div className="flex justify-end">
+            <button className="btn mb-4 text-white" onClick={open}>
+              Add vacation
+            </button>
           </div>
-          <Table>
-            <TableCaption>A list of vacations</TableCaption>
-            <TableHeader>
-              <TableRow>
-                {/* <TableHead className="min-w-[100px]">Id</TableHead> */}
-                <TableHead className="w-[100px]">Start</TableHead>
-                <TableHead className="w-[100px]">End</TableHead>
-                <TableHead className="text-right">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((vacation) => (
-                <TableRow key={vacation.id}>
-                  <TableCell className="">
-                    {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
-                  </TableCell>
-                  <TableCell className="">
-                    {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
-                  </TableCell>
-                  <TableCell className=" flex justify-end">
-                    <div
-                      className={`${color(
-                        vacation.status
-                      )} w-min px-2 py-2 font-bold`}
-                    >
-                      {vacation.status.toUpperCase()}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table className="w-full text-left text-sm text-neutral-500 dark:text-neutral-400">
+              <thead className="bg-neutral-50 text-xs uppercase text-neutral-700 dark:bg-neutral-700 dark:text-neutral-400">
+                <tr>
+                  <th scope="col" className="px-6 py-3">
+                    Start
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    End
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((vacation) => (
+                  <tr
+                    key={vacation.id}
+                    className="border-b bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800"
+                  >
+                    <th scope="row" className="px-6 py-4 text-white">
+                      {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
+                    </th>
+                    <td className="px-6 py-4 text-white">
+                      {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div
+                        className={`${color(
+                          vacation.status
+                        )} w-min px-2 py-2 font-bold`}
+                      >
+                        {vacation.status.toUpperCase()}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
       {status == "loading" && <div className="text-4xl">Loading...</div>}
