@@ -10,7 +10,7 @@ export default async function Home() {
     <main className="flex  flex-col items-center justify-between p-24">
       {/* <Button></Button> */}
      <div className='text-white'>
-     {sesion?.user?.email}
+     {sesion?.user?.role}
      </div>
     </main>
   )

@@ -10,6 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "~/utils/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import DialogForm from "./DialogForm";
 
 // import {
 //   ColumnDef,
@@ -124,7 +134,13 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {status == "success" && (
         <div className="container mx-auto py-10">
-          <Table >
+          <div>
+            <Dialog>
+              <DialogTrigger><Button variant="destructive">Add vacation</Button></DialogTrigger>
+             <DialogForm />
+            </Dialog>
+          </div>
+          <Table>
             <TableCaption>A list of vacations</TableCaption>
             <TableHeader>
               <TableRow>
@@ -144,9 +160,13 @@ export default function Page() {
                     {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
                   </TableCell>
                   <TableCell className=" flex justify-end">
-                   <div className={`${color(vacation.status)} w-min px-2 py-2 font-bold`}>
+                    <div
+                      className={`${color(
+                        vacation.status
+                      )} w-min px-2 py-2 font-bold`}
+                    >
                       {vacation.status.toUpperCase()}
-                   </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

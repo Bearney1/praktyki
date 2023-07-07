@@ -37,7 +37,41 @@ export const vacationRouter = createTRPCRouter({
             return vacation;
         });
         return r;
-        
-    })
+    }),
+    createVacation: protectedProcedure.input(z.object({
+        startDate: z.string(),
+        endDate: z.string(),
+    })).mutation(
+        async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                    id: userId
+                }
+            });
+            if (!user) {
+                throw new Error("User not found");
+            }
+            const project = await ctx.prisma.project.findFirst({
+                where: {
+                    users: {
+                        some: {
+                            id: userId
+                        }
+                    }
+                }});
+
+            const r = await ctx.prisma.vacation.create({
+                data: {
+                    startDate: input.startDate,
+                    endDate: input.endDate,
+                    projectId: project?.id,
+                    userId: userId,
+                    status: "pending"
+                }
+            });
+            return r;
+        }
+    )
   });
   

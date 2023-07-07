@@ -1,13 +1,14 @@
 $sourceDirectory = "C:\Program Files\Microsoft SQL Server\MSSQL16.SQLEXPRESS\MSSQL\Backup\"
 $networkShare = "\\192.168.1.123\Filmy Taty"
-# $destinationFileName = "skip.back"
-$destinationFolder = Join-Path -Path $networkShare -ChildPath "Backups"
+$logFilePath = "\\192.168.1.123\Filmy Taty\backup_log.txt"
+
+$currentDate = Get-Date -Format "dd-MM-yyyy_hh-mm-ss"
+$destinationFolder = Join-Path -Path $networkShare -ChildPath "Backups/$currentDate"
 
 if (!(Test-Path -Path $destinationFolder)) {
     New-Item -Path $destinationFolder -ItemType Directory | Out-Null
 }
 
-$currentDate = Get-Date -Format "dd-MM-yyyy_hh-mm-ss"
 
 $sourceFiles = Get-ChildItem -Path $sourceDirectory -Filter "*.bak" -File
 $filesInDestination = Get-ChildItem -Path $destinationFolder -Filter "*.bak" -File
