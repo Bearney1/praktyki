@@ -77,6 +77,19 @@ export const vacationRouter = createTRPCRouter({
 
             return r;
         }
-    )
+    ),
+    checkIfUserBelongsToAnyProject: protectedProcedure.query(async ({ ctx }) => {
+        const r = await ctx.prisma.project.findFirst({
+            where: {
+                users: {
+                    some: {
+                        id: ctx.session.user.id
+                    }
+                }
+            }
+        });
+        return r !== null;
+    }
+    ),
   });
   

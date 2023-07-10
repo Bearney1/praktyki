@@ -1,56 +1,68 @@
-import { MultiSelect } from '@mantine/core';
-import { type IncomingMessage, type ServerResponse } from 'http';
-import React from 'react'
-import { getServerAuthSession } from '~/server/auth';
-import { api } from '~/utils/api';
+import { MultiSelect } from "@mantine/core";
+import { type IncomingMessage, type ServerResponse } from "http";
+import React, { useState } from "react";
+import { getServerAuthSession } from "~/server/auth";
+import { api } from "~/utils/api";
 
 export default function Index() {
-    const { data, status, error } = api.admin.getAllUsers.useQuery();
+  const { data, status, error, refetch } = api.admin.getAllUsers.useQuery();
+  const [q, setq] = useState("");
+  const {data: projects} = api.admin.getAllProjects.useQuery({q})
+  const {mutateAsync: changeRole} = api.admin.changeUserRole.useMutation()
+  
+  const handleChangeRole = async (id: string, checked: boolean) => {
+    await changeRole({id, role: checked ? "admin" : "user"})
+    await refetch()
+} 
   return (
-    <div className='flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white p-24 items-center'>
-        {status === 'loading' && <span className="loading loading-spinner loading-lg"></span>}
-        {status === 'error' && <span>Error: {error.message}</span>}
-        <table className='table'>
-            <thead>
-                <tr>
-                    <th>Imię</th>
-                    <th>Email</th>
-                    <th>Rola</th>
-                    <th>Projekty</th>
-                </tr>
-            </thead>
-            <tbody>
-                {data?.map((user) => (
-                    <tr key={user.id}>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>{user.role}</td>
-                        <td>
-                        <MultiSelect
-      data={['React', 'Angular', 'Svelte', 'Vue', 'Riot', 'Next.js', 'Blitz.js']}
-      label="Your favorite frameworks/libraries"
-      placeholder="Pick all that you like"
-      searchable
-      searchValue={"fdf"}
-      onSearchChange={(e) => console.log(e)}
-      nothingFound="Nothing found"
-    />
-                            {user.Project.map((e) => <div className="badge mr-2" key={e.id}>{e.name}</div>)}</td>
+    <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
+      {status === "loading" && (
+        <span className="loading loading-spinner loading-lg"></span>
+      )}
+      {status === "error" && <span>Error: {error.message}</span>}
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Imię</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Projekty</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data?.map((user) => (
+            <tr key={user.id}>
+              <td>{user.name}</td>
+              <td>{user.email}</td>
+              <td><input type="checkbox" className="checkbox-primar checkbox-md" checked={user.role === "admin"} onChange={(e) => { handleChangeRole(user.id,e.target.checked).catch(e => console.log(e))}} /></td>
+              <td className="max-w-[200px]">
+                <MultiSelect
+                  data={projects?.map((e) => e.name) ?? []}
+                  placeholder="Pick all that you like"
+                  searchable
+                  searchValue={q}
+                  onSearchChange={setq}
 
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-
+                  value={user.Project.map((e) => e.name)}
+                  nothingFound="Nothing found"
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  )
+  );
 }
-export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+export async function getServerSideProps(ctx: {
+  req: IncomingMessage & { cookies: Partial<{ [key: string]: string }> };
+  res: ServerResponse<IncomingMessage>;
+}) {
   const session = await getServerAuthSession(ctx);
   if (session?.user.role === "admin") {
     return {
-      props: {}
-    }
+      props: {},
+    };
   }
   return {
     redirect: {

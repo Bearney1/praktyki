@@ -11,6 +11,7 @@ import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
 import { IncomingMessage, ServerResponse } from "http";
 import { VacationStatus } from "@prisma/client";
+import { useState } from "react";
 
 enum VacationType {
   remote = "remote",
@@ -20,6 +21,8 @@ enum VacationType {
 export default function Page() {
   const sesion = useSession();
   const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
+  const {data: belongsTo} = api.vacation.checkIfUserBelongsToAnyProject.useQuery()
+
   const { mutateAsync: addVacation } =
     api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
@@ -63,7 +66,18 @@ export default function Page() {
         )
         .catch((e) => console.log(e));
   };
-
+  if (!belongsTo) {
+    return (
+      <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+        <div className="container mx-auto py-10">
+          <div className="text-4xl">Nie należysz do żadnego projektu. Skontaktuj się z administratorem.</div>
+          <div className="btn btn-xl mt-4 text-white" onClick={() => {signOut().catch(e => console.log(e))}}>
+            Wyloguj
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {status == "success" && (
