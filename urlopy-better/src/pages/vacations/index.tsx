@@ -5,6 +5,11 @@ import { useDisclosure } from "@mantine/hooks";
 import { Input, Modal, Select } from "@mantine/core";
 import { api } from "~/utils/api";
 import { useForm } from "@mantine/form";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { getServerAuthSession } from "~/server/auth";
+import { IncomingMessage, ServerResponse } from "http";
 
 enum VacationType {
   remote = "remote",
@@ -12,10 +17,11 @@ enum VacationType {
 }
 
 export default function Page() {
+  const sesion = useSession();
   const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
-  const { mutateAsync: addVacation } = api.vacation.createVacation.useMutation();
+  const { mutateAsync: addVacation } =
+    api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
-
   const color = (stat: string) => {
     switch (stat) {
       case "accepted":
@@ -38,17 +44,21 @@ export default function Page() {
   });
 
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
-    console.log(values.date)
-    values.date[0] && values.date[1] &&
+    console.log(values.date);
+    values.date[0] &&
+      values.date[1] &&
       addVacation({
         startDate: values.date[0],
         endDate: values.date[1],
         reason: values.why,
         workingType: values.type as VacationType,
-      }).then(() => refetch().then(() => close()).catch(e => console.log(e))).catch((e) => console.log(e));
-      
-      
-
+      })
+        .then(() =>
+          refetch()
+            .then(() => close())
+            .catch((e) => console.log(e))
+        )
+        .catch((e) => console.log(e));
   };
 
   return (
@@ -59,7 +69,9 @@ export default function Page() {
 
           <Modal opened={opened} onClose={close} radius="lg">
             <form onSubmit={form.onSubmit(handleAdd)}>
-              <div className="mb-4 text-2xl font-bold text-white">Dodaj urlop</div>
+              <div className="mb-4 text-2xl font-bold text-white">
+                Dodaj urlop
+              </div>
               <DatePickerInput
                 placeholder="Wybierz datę"
                 dropdownType="modal"
@@ -92,10 +104,52 @@ export default function Page() {
             </form>
           </Modal>
 
-          <div className="flex justify-end">
-            <button className="btn mb-4 text-white" onClick={open}>
-              Add vacation
-            </button>
+          <div className="flex justify-between">
+            <div className="dropdown">
+              <label tabIndex={0} className="ml-4">
+                <div className="avatar">
+                  <div className="rounded-full">
+                    {sesion.data?.user.image && (
+                      <Image
+                        src={sesion.data?.user.image}
+                        alt="avatar"
+                        width="35"
+                        height="35"
+                      />
+                    )}
+                  </div>
+                </div>
+              </label>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
+              >
+                <li>
+                  <Link href="/profile">
+                  Profile
+                  </Link>
+                </li>
+                <li>
+                  <div onClick={() => {signOut().catch(e => console.log(e))}}>
+                    Logout 
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <button
+                className="btn mr-4 text-white"
+                onClick={() => {
+                  signOut().catch((e) => console.log(e));
+                }}
+              >
+                Wyloguj
+              </button>
+
+              <button className="btn mb-4 text-white" onClick={open}>
+                Add vacation
+              </button>
+            </div>
           </div>
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
             <table className="text-md table">
@@ -117,10 +171,16 @@ export default function Page() {
                     <td className="text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.endDate)}
                     </td>
-                    <td className="text-white max-w-[150px]">
+                    <td className="max-w-[150px] text-white">
                       {vacation.reason}
                     </td>
-                    <td className={`text-white ${vacation.workingType == "office" ? "text-green-400" : "text-blue-400"}`}>
+                    <td
+                      className={`text-white ${
+                        vacation.workingType == "office"
+                          ? "text-green-400"
+                          : "text-blue-400"
+                      }`}
+                    >
                       {vacation.workingType}
                     </td>
                     <td>
@@ -141,4 +201,20 @@ export default function Page() {
       {status == "error" && <div className="text-4xl">Error</div>}
     </div>
   );
+}
+
+
+export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+  const session = await getServerAuthSession(ctx);
+  if (session?.user.role === "user") {
+    return {
+      props: {}
+    }
+  }
+  return {
+    redirect: {
+      destination: "/",
+      permanent: false,
+    },
+  };
 }

@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { IncomingMessage, ServerResponse } from "http";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/router";
+import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
 
 // export default function Home() {
@@ -83,13 +85,13 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   const session = useSession();
-  const router = useRouter();
-  if (session.status === "loading") return <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white text-9xl">loading...</div>;
-  if (session.data?.user.role === "admin") {
-    router.push("/admin").catch((e) => {console.log(e)});
-  } else if (session.data?.user.role === "user") {
-    router.push("/vacations").catch((e) => {console.log(e)});    
-  }
+  // const router = useRouter();
+  // if (session.status === "loading") return <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white text-9xl">loading...</div>;
+  // if (session.data?.user.role === "admin") {
+  //   router.push("/admin").catch((e) => {console.log(e)});
+  // } else if (session.data?.user.role === "user") {
+  //   router.push("/vacations").catch((e) => {console.log(e)});    
+  // }
     
   
   return (
@@ -109,3 +111,26 @@ export default function Home() {
     </div>
   );
 }
+
+export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+  const session = await getServerAuthSession(ctx);
+  if (session?.user.role === "admin") {
+    return {
+      redirect: {
+        destination: "/admin",
+        permanent: false,
+      },
+    }
+  } else if (session?.user.role === "user") {
+    return {
+      redirect: {
+        destination: "/vacations",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
+  
