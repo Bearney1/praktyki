@@ -26,7 +26,6 @@ export const vacationRouter = createTRPCRouter({
             userId: ctx.session.user.id
             }
         });
-      
         return r;
     }),
     createVacation: protectedProcedure.input(z.object({

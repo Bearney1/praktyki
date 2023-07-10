@@ -87,6 +87,7 @@ model Project {
 }
 
 enum VacationStatus {
+    new
     pending
     approved
     rejected

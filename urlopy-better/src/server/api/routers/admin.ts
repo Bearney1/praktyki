@@ -1,3 +1,4 @@
+import { VacationStatus } from "@prisma/client";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -6,34 +7,124 @@ import {
 } from "~/server/api/trpc";
 
 export const adminRouter = createTRPCRouter({
-//   hello: publicProcedure
-//     .input(z.object({ text: z.string() }))
-//     .query(({ input }) => {
-//       return {
-//         greeting: `Hello ${input.text}`,
-//       };
-//     }),
+  //   hello: publicProcedure
+  //     .input(z.object({ text: z.string() }))
+  //     .query(({ input }) => {
+  //       return {
+  //         greeting: `Hello ${input.text}`,
+  //       };
+  //     }),
 
-//   getAll: publicProcedure.query(({ ctx }) => {
-//     return ctx.prisma.example.findMany();
-//   }),
+  //   getAll: publicProcedure.query(({ ctx }) => {
+  //     return ctx.prisma.example.findMany();
+  //   }),
 
-//   getSecretMessage: protectedProcedure.query(() => {
-//     return "you can now see this secret message!";
-//   }),
-getAllProjects: protectedProcedure.input(z.object({q:z.string()})).query(async ({ctx, input}) => {
-    if (!input.q) {
-    const projects = await ctx.prisma.project.findMany();
-    return projects;
-    }
-    const projects = await ctx.prisma.project.findMany({
-        where: {
-            name: {
-                contains: input.q,
-                mode: "insensitive",
+  //   getSecretMessage: protectedProcedure.query(() => {
+  //     return "you can now see this secret message!";
+  //   }),
+  getAllProjects: protectedProcedure
+    .input(z.object({ q: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!input.q) {
+        const projects = await ctx.prisma.project.findMany(
+          {
+            include: {
+              users: true,
             },
+          }
+        );
+        return projects;
+      }
+      const projects = await ctx.prisma.project.findMany({
+        where: {
+          name: {
+            contains: input.q,
+            mode: "insensitive",
+          },
         },
+        include: {
+          users: true,
+        },
+      });
+      return projects;
+    }),
+  getAllInfoProject: protectedProcedure.input(z.object({
+    id: z.string(),
+  })).query(async ({ ctx, input }) => {
+    const project = await ctx.prisma.project.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        vacation:{
+          orderBy: {
+            createdAt: "desc"
+          },
+          include:{
+            user: true
+          }
+        }
+      }
     });
-    return projects;            
+    return project;
+  }
+  ),
+  updateStatus: protectedProcedure.input(z.object({
+    id: z.string(),
+    status: z.enum([VacationStatus.approved, VacationStatus.rejected, VacationStatus.pending, VacationStatus.new])
+  })).mutation(async ({ ctx, input }) => {
+    const vacation = await ctx.prisma.vacation.update({
+      where: {
+        id: input.id
+      },
+      data: {
+        status: input.status as VacationStatus
+      }
+    });
+    return vacation;
   }),
+  createVacation: protectedProcedure.input(z.object({
+    startDate: z.date(),
+    endDate: z.date(),
+    reason: z.string(),
+    workingType: z.enum(["remote", "office"]),
+    userId: z.string(),
+    projectId: z.string()
+  })).mutation(
+    async ({ ctx, input }) => {
+      const r = await ctx.prisma.vacation.create({
+        data: {
+          startDate: input.startDate,
+          endDate: input.endDate,
+          reason: input.reason,
+          workingType: input.workingType,
+          user: {
+            connect: {
+              id: input.userId
+            }
+          },
+          project: {
+            connect: {
+              id: input.projectId
+            }
+          }
+        }
+      });
+      return r;
+    }
+  ),
+  getUsersForProject: protectedProcedure.input(z.object({
+    id: z.string()
+  })).query(async ({ ctx, input }) => {
+    const project = await ctx.prisma.project.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        users: true
+      }
+    });
+    return project;
+  }
+  ),
 });

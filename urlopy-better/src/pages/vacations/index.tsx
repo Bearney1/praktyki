@@ -10,6 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getServerAuthSession } from "~/server/auth";
 import { IncomingMessage, ServerResponse } from "http";
+import { VacationStatus } from "@prisma/client";
 
 enum VacationType {
   remote = "remote",
@@ -22,14 +23,16 @@ export default function Page() {
   const { mutateAsync: addVacation } =
     api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
-  const color = (stat: string) => {
+  const color = (stat: VacationStatus) => {
     switch (stat) {
-      case "accepted":
+      case VacationStatus.approved:
         return "text-green-300";
-      case "rejected":
+      case VacationStatus.rejected:
         return "text-red-300";
-      case "pending":
+      case VacationStatus.pending:
         return "text-yellow-300";
+      case VacationStatus.new:
+        return "text-blue-300";
       default:
         return "text-gray-300";
     }
@@ -137,14 +140,7 @@ export default function Page() {
               </ul>
             </div>
             <div>
-              <button
-                className="btn mr-4 text-white"
-                onClick={() => {
-                  signOut().catch((e) => console.log(e));
-                }}
-              >
-                Wyloguj
-              </button>
+          
 
               <button className="btn mb-4 text-white" onClick={open}>
                 Add vacation
