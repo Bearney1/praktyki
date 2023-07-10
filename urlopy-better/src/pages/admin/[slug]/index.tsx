@@ -10,6 +10,8 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { VacationStatus } from "@prisma/client";
+import { getServerAuthSession } from "~/server/auth";
+import { IncomingMessage, ServerResponse } from "http";
 
 enum VacationType {
   remote = "remote",
@@ -309,4 +311,19 @@ export default function Page() {
       {status == "error" && <div className="text-4xl">Error</div>}
     </div>
   );
+}
+
+export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+  const session = await getServerAuthSession(ctx);
+  if (session?.user.role === "admin") {
+    return {
+      props: {}
+    }
+  }
+  return {
+    redirect: {
+      destination: "/",
+      permanent: false,
+    },
+  };
 }

@@ -109,7 +109,7 @@ export default function Page() {
 
           <div className="flex justify-between">
             <div className="dropdown">
-              <label tabIndex={0} className="ml-4">
+              <label tabIndex={0} >
                 <div className="avatar">
                   <div className="rounded-full">
                     {sesion.data?.user.image && (
@@ -155,7 +155,7 @@ export default function Page() {
                   <th scope="col">End</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Type</th>
-                  <th scope="col">Status</th>
+                  <th scope="col" className="text-right">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,7 +167,7 @@ export default function Page() {
                     <td className="text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.endDate)}
                     </td>
-                    <td className="max-w-[150px] text-white">
+                    <td className="max-w-[150px] overflow-x-auto text-white">
                       {vacation.reason}
                     </td>
                     <td
@@ -179,9 +179,9 @@ export default function Page() {
                     >
                       {vacation.workingType}
                     </td>
-                    <td>
+                    <td className="text-right">
                       <div
-                        className={`${color(vacation.status)} w-min font-bold`}
+                        className={`${color(vacation.status)} font-bold`}
                       >
                         {vacation.status.toUpperCase()}
                       </div>

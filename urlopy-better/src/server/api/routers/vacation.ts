@@ -24,6 +24,9 @@ export const vacationRouter = createTRPCRouter({
         const r = await ctx.prisma.vacation.findMany({
             where: {
             userId: ctx.session.user.id
+            },
+            orderBy: {
+            updatedAt: "desc"
             }
         });
         return r;

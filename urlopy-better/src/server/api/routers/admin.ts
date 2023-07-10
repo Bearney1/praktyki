@@ -25,6 +25,9 @@ export const adminRouter = createTRPCRouter({
   getAllProjects: protectedProcedure
     .input(z.object({ q: z.string() }))
     .query(async ({ ctx, input }) => {
+      if (ctx.session.user.role !== "admin") {
+        throw new Error("You are not admin");
+      }
       if (!input.q) {
         const projects = await ctx.prisma.project.findMany(
           {
@@ -51,6 +54,9 @@ export const adminRouter = createTRPCRouter({
   getAllInfoProject: protectedProcedure.input(z.object({
     id: z.string(),
   })).query(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
     const project = await ctx.prisma.project.findUnique({
       where: {
         id: input.id
@@ -73,6 +79,9 @@ export const adminRouter = createTRPCRouter({
     id: z.string(),
     status: z.enum([VacationStatus.approved, VacationStatus.rejected, VacationStatus.pending, VacationStatus.new])
   })).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
     const vacation = await ctx.prisma.vacation.update({
       where: {
         id: input.id
@@ -92,6 +101,9 @@ export const adminRouter = createTRPCRouter({
     projectId: z.string()
   })).mutation(
     async ({ ctx, input }) => {
+      if (ctx.session.user.role !== "admin") {
+        throw new Error("You are not admin");
+      }
       const r = await ctx.prisma.vacation.create({
         data: {
           startDate: input.startDate,
@@ -116,6 +128,9 @@ export const adminRouter = createTRPCRouter({
   getUsersForProject: protectedProcedure.input(z.object({
     id: z.string()
   })).query(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
     const project = await ctx.prisma.project.findUnique({
       where: {
         id: input.id
@@ -127,4 +142,15 @@ export const adminRouter = createTRPCRouter({
     return project;
   }
   ),
+  getAllUsers: protectedProcedure.query(async ({ ctx }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
+    const users = await ctx.prisma.user.findMany({
+      include: {
+        Project: true
+      }
+    });
+    return users;
+  }),
 });
