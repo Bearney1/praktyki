@@ -171,4 +171,29 @@ export const adminRouter = createTRPCRouter({
     return user;
   }
   ),
+  updateProjectsForUser: protectedProcedure.input(z.object({
+    id: z.string(),
+    projects: z.array(z.string())
+  })).mutation(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
+    const user = await ctx.prisma.user.update({
+      where: {
+        id: input.id
+      },
+      data: {
+        Project: {
+          set: input.projects.map((id) => ({
+            id
+          }))
+        }
+      },
+      include: {
+        Project: true
+      }
+    });
+
+    return user;
+  }),
 });

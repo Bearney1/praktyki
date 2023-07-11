@@ -3,6 +3,7 @@ import { type IncomingMessage, type ServerResponse } from "http";
 import React, { useState } from "react";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
+import Line from "./Line";
 
 export default function Index() {
   const { data, status, error, refetch } = api.admin.getAllUsers.useQuery();
@@ -14,6 +15,9 @@ export default function Index() {
     await changeRole({id, role: checked ? "admin" : "user"})
     await refetch()
 } 
+const r = async () => {
+    await refetch()
+}
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
       {status === "loading" && (
@@ -32,21 +36,7 @@ export default function Index() {
         <tbody>
           {data?.map((user) => (
             <tr key={user.id}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td><input type="checkbox" className="checkbox-primar checkbox-md" checked={user.role === "admin"} onChange={(e) => { handleChangeRole(user.id,e.target.checked).catch(e => console.log(e))}} /></td>
-              <td className="max-w-[200px]">
-                <MultiSelect
-                  data={projects?.map((e) => e.name) ?? []}
-                  placeholder="Pick all that you like"
-                  searchable
-                  searchValue={q}
-                  onSearchChange={setq}
-
-                  value={user.Project.map((e) => e.name)}
-                  nothingFound="Nothing found"
-                />
-              </td>
+             <Line user={user} handleChangeRole={handleChangeRole} projects={projects} refetch={r} userprojects={user.Project} />
             </tr>
           ))}
         </tbody>
