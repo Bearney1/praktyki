@@ -11,9 +11,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-             <MantineProvider theme={{ colorScheme: "dark" }} >
-
-      <Component {...pageProps} />
+      <MantineProvider theme={{ colorScheme: "dark" }}>
+        <Component {...pageProps} />
       </MantineProvider>
     </SessionProvider>
   );

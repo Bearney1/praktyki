@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'http'
+import { type IncomingMessage, type ServerResponse } from 'http'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import React from 'react'

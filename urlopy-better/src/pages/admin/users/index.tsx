@@ -1,4 +1,3 @@
-import { MultiSelect } from "@mantine/core";
 import { type IncomingMessage, type ServerResponse } from "http";
 import React, { useState } from "react";
 import { getServerAuthSession } from "~/server/auth";

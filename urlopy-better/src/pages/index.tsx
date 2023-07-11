@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { IncomingMessage, ServerResponse } from "http";
+import { type IncomingMessage, type ServerResponse } from "http";
 import { signIn, signOut, useSession } from "next-auth/react";
-import Head from "next/head";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useRouter } from "next/router";
 import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/utils/api";
 
 // export default function Home() {
 //   const hello = api.example.hello.useQuery({ text: "from tRPC" });

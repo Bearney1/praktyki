@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { VacationStatus } from "@prisma/client";
 import { getServerAuthSession } from "~/server/auth";
-import { IncomingMessage, ServerResponse } from "http";
+import { type IncomingMessage, type ServerResponse } from "http";
 
 enum VacationType {
   remote = "remote",

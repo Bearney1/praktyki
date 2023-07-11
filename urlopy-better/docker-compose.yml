@@ -1,0 +1,29 @@
+version: '3.2'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+    networks:
+      - conn
+
+  next:
+    build: .
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/postgres
+    networks:
+      - conn
+
+networks:
+  conn:
+    driver: bridge
