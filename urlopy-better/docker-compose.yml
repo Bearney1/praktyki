@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: postgres
     networks:
       - conn
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
 
   next:
     build: .
