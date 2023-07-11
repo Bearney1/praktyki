@@ -214,17 +214,17 @@ export default function Page() {
 }
 
 
-export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
-  const session = await getServerAuthSession(ctx);
-  if (session?.user.role === "user") {
-    return {
-      props: {}
-    }
-  }
-  return {
-    redirect: {
-      destination: "/",
-      permanent: false,
-    },
-  };
-}
+// export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+//   const session = await getServerAuthSession(ctx);
+//   if (session?.user.role === "user") {
+//     return {
+//       props: {}
+//     }
+//   }
+//   return {
+//     redirect: {
+//       destination: "/",
+//       permanent: false,
+//     },
+//   };
+// }

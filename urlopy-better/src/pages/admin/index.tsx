@@ -44,6 +44,7 @@ export default function Page() {
 
   return (
     <div className='flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white  p-24 items-center'>
+      <Link className='btn mb-4' href="/admin/users">Zarządzanie urzytkownikami</Link>
       <input className='input mb-4' placeholder='Nazwa projektu' onChange={(e) => setQuery(e.target.value)}/>
       {status === 'loading' && <span className="loading loading-spinner loading-lg"></span>}
       {status === 'error' && <span>Error: {error.message}</span>}
