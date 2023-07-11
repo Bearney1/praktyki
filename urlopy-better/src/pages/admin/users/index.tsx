@@ -5,8 +5,11 @@ import { api } from "~/utils/api";
 import Line from "./Line";
 import { Input } from "@mantine/core";
 import { useForm } from "@mantine/form";
-
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import Image from "next/image";
 export default function Index() {
+  const session = useSession();
   const { data, status, error, refetch } = api.admin.getAllUsers.useQuery();
   const [q, setq] = useState("");
   const { data: projects, refetch:refetchProjects } = api.admin.getAllProjects.useQuery({ q });
@@ -41,7 +44,42 @@ export default function Index() {
   }
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
-      <div className="flex w-full justify-end px-4">
+      <div className="flex w-full justify-between px-4">
+      <div className="dropdown">
+              <label tabIndex={0}  >
+                <div className="avatar">
+                    <div className="h-12 w-12">
+                    {session.data?.user.image && (
+ <Image
+                        src={session.data?.user.image}
+                        alt="avatar"
+                       fill
+                       className="rounded-full"
+                      />
+                    )}
+
+           
+                  </div>
+                </div>
+              </label>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
+              >
+                <li>
+                  <Link href="/admin">Select project</Link>
+                </li>
+                <li>
+                  <div
+                    onClick={() => {
+                      signOut().catch((e) => console.log(e));
+                    }}
+                  >
+                    Logout
+                  </div>
+                </li>
+              </ul>
+            </div>
         <button className="btn" onClick={() => ref.current?.showModal()}>Utwórz projekt</button>
       </div>
       <dialog ref={ref} className="modal">
