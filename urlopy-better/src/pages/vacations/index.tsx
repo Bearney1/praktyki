@@ -69,9 +69,11 @@ export default function Page() {
     },
     validate: {
       date: (value) => {
+        
         if (!value[0] || !value[1]) {
           return "Musisz wybrać datę";
         }        
+            
       },
       why: (value) => {
         if (value.length < 10) {
@@ -82,15 +84,6 @@ export default function Page() {
     }
   });
 
-  // date: (value) => {
-  //   // if it is today before 12:00 can't be added
-  //   if (value[0]!.getDate() == new Date().getDate() && value[0]!.getMonth() == new Date().getMonth() && value[0]!.getFullYear() == new Date().getFullYear()) {
-  //     if (new Date().getHours() < 12) {
-  //       return "Can't add vacation for today before 12:00";
-  //     }
-  //   }
-    
-  // }
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
     if (!projectId) {
       setErr("Wystąpił błąd")
@@ -217,9 +210,12 @@ export default function Page() {
 
              <div className="flex">
              <Select
-             data={projects?.map(e => {
+             data={[{
+                value: "",
+                label: "Wszystkie"
+              },...(projects?.map(e => {
                 return {value: e.id, label: e.name}
-              }) ?? []}
+              })) ?? []] ?? []}
               className="mt-2"
               value={projectId}
               onChange={projectIdChange}
