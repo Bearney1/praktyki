@@ -218,7 +218,7 @@ export default function Page() {
                 className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
               >
                 <li>
-                  <Link href="/admin">Select project</Link>
+                  <Link href="/admin" prefetch={false} passHref>Select project</Link>
                 </li>
                 <li>
                   <div

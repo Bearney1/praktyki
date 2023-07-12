@@ -41,6 +41,7 @@
     "react-calendar": "^4.3.0",
     "react-day-picker": "^8.8.0",
     "react-dom": "18.2.0",
+    "sharp": "^0.32.2",
     "superjson": "1.12.2",
     "tailwind-merge": "^1.13.2",
     "tailwindcss-animate": "^1.0.6",

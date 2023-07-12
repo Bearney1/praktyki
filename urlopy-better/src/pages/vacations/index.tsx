@@ -1,4 +1,3 @@
-// import React from "react";
 
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
@@ -8,15 +7,12 @@ import { useForm } from "@mantine/form";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { getServerAuthSession } from "~/server/auth";
-import { IncomingMessage, ServerResponse } from "http";
-import { VacationStatus } from "@prisma/client";
-import { useState } from "react";
+import { VacationStatus, type WorkingType } from "@prisma/client";
 
-enum VacationType {
-  remote = "remote",
-  office = "office",
-}
+// enum VacationType {
+//   remote = "remote",
+//   office = "office",
+// }
 
 export default function Page() {
   const sesion = useSession();
@@ -47,8 +43,29 @@ export default function Page() {
       why: "",
       type: "",
     },
+    validate: {
+      date: (value) => {
+        if (!value[0] || !value[1]) {
+          return "Musisz wybrać datę";
+        }        
+      },
+      why: (value) => {
+        if (value.length < 10) {
+          return "Powód musi mieć conajmniej 10 znaków";
+        }
+      }
+    }
   });
 
+  // date: (value) => {
+  //   // if it is today before 12:00 can't be added
+  //   if (value[0]!.getDate() == new Date().getDate() && value[0]!.getMonth() == new Date().getMonth() && value[0]!.getFullYear() == new Date().getFullYear()) {
+  //     if (new Date().getHours() < 12) {
+  //       return "Can't add vacation for today before 12:00";
+  //     }
+  //   }
+    
+  // }
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
     console.log(values.date);
     values.date[0] &&
@@ -57,7 +74,7 @@ export default function Page() {
         startDate: values.date[0],
         endDate: values.date[1],
         reason: values.why,
-        workingType: values.type as VacationType,
+        workingType: values.type as WorkingType,
       })
         .then(() =>
           refetch()
@@ -89,19 +106,24 @@ export default function Page() {
               <div className="mb-4 text-2xl font-bold text-white">
                 Dodaj urlop
               </div>
-              <DatePickerInput
+            
+              
+                <DatePickerInput
                 placeholder="Wybierz datę"
                 dropdownType="modal"
                 type="range"
                 mx="auto"
                 {...form.getInputProps("date")}
               ></DatePickerInput>
+            {(new Date()).getHours() >= 12 &&
               <Input
                 className="mt-2"
                 placeholder="Powód"
                 radius="md"
                 {...form.getInputProps("why")}
               ></Input>
+              }
+              
               <Select
                 data={[
                   { value: "remote", label: "Zdalna praca" },
@@ -109,6 +131,8 @@ export default function Page() {
                 ]}
                 className="mt-2"
                 placeholder="Typ pracy"
+                transitionProps={{ transition: 'pop-top-left', duration: 80, timingFunction: 'ease' }}
+
                 radius="md"
                 {...form.getInputProps("type")}
               />
