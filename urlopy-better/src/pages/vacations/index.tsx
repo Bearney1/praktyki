@@ -1,7 +1,7 @@
 
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
-import { Button, Input, Modal, Select } from "@mantine/core";
+import { Button, Input, Modal, Select, Notification } from "@mantine/core";
 import { api } from "~/utils/api";
 import { useForm } from "@mantine/form";
 import { signOut, useSession } from "next-auth/react";
@@ -9,8 +9,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { VacationStatus, type WorkingType } from "@prisma/client";
 import { getServerAuthSession } from "~/server/auth";
-import { IncomingMessage, ServerResponse } from "http";
-import {useState} from "react";
+import { type IncomingMessage, type ServerResponse } from "http";
+import {useEffect, useState} from "react";
+import {  IconX } from '@tabler/icons-react';
 
 // enum VacationType {
 //   remote = "remote",
@@ -19,7 +20,8 @@ import {useState} from "react";
 
 export default function Page() {
   const sesion = useSession();
-  const { data:projects } = api.vacation.getAllProjects.useQuery();
+  const [err, setErr] = useState<string>("")
+  const { data:projects, error: errorProjects } = api.vacation.getAllProjects.useQuery();
   const [projectId, setProjectId] = useState<string>(projects?.[0]?.id ?? "")
   const { data, status, refetch } = api.vacation.getAllForUser.useQuery({projectId});
   const projectIdChange = (e: string) => {
@@ -44,7 +46,21 @@ export default function Page() {
         return "text-gray-300";
     }
   };
+  useEffect(() => {
+    if (status == "error") {
+      setErr("Wystąpił błąd")
+      setTimeout(() => {
+        setErr("")
+      }, 3000);
+    }
+    if (errorProjects) {
+      setErr("Wystąpił błąd")
+      setTimeout(() => {
+        setErr("")
+      }, 3000);
+    } 
 
+  }, [status,errorProjects])
   const form = useForm({
     initialValues: {
       date: [new Date(), new Date()],
@@ -76,9 +92,15 @@ export default function Page() {
     
   // }
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
-    console.log(values.date);
+    if (!projectId) {
+      setErr("Wystąpił błąd")
+      setTimeout(() => {
+        setErr("")
+      }, 3000);
+    }
     values.date[0] &&
       values.date[1] &&
+      projectId &&
       addVacation({
         startDate: values.date[0],
         endDate: values.date[1],
@@ -107,6 +129,9 @@ export default function Page() {
   }
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+       {err && <Notification withCloseButton={false} radius="md" title="Wystąpił błąd" className="fixed bottom-0 right-0 m-4" icon={<IconX size="1.1rem" />} color="red">
+        {err}
+      </Notification>}
       {status == "success" && (
         <div className="container mx-auto py-10">
           {/* <dialog ref={ref} className="modal"> */}
