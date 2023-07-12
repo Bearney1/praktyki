@@ -19,22 +19,56 @@ export const vacationRouter = createTRPCRouter({
     // getSecretMessage: protectedProcedure.query(() => {
     //   return "you can now see this secret message!";
     // }),
-    getAllForUser: protectedProcedure.query(async ({ ctx }) => {
+    getAllForUser: protectedProcedure.input(z.object({projectId:z.string()})).query(async ({ ctx, input }) => {
+        if (input.projectId === "") {
+            const r = await ctx.prisma.vacation.findMany({
+                where: {
+                    user: {
+                        id: ctx.session.user.id
+                    }
+                },
+                orderBy: {
+                    startDate: "desc"
+                }
+            });
+            return r;
+        }
+        
         const r = await ctx.prisma.vacation.findMany({
             where: {
-            userId: ctx.session.user.id
+                user: {
+                    id: ctx.session.user.id
+                },
+                project: {
+                    id: input.projectId
+                }
             },
             orderBy: {
-            updatedAt: "desc"
+                startDate: "desc"
+            }
+        });
+        return r;
+   
+    }),
+    getAllProjects: protectedProcedure.query(async ({ ctx }) => {
+        const r = await ctx.prisma.project.findMany({
+            where: {
+                users: {
+                    some: {
+                        id: ctx.session.user.id
+                    }
+                }
             }
         });
         return r;
     }),
+
     createVacation: protectedProcedure.input(z.object({
         startDate: z.date(),
         endDate: z.date(),
         reason: z.string(),
-        workingType: z.enum(["remote", "office"])
+        workingType: z.enum(["remote", "office"]),
+        projectId: z.string()
     })).mutation(
         async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
@@ -48,11 +82,7 @@ export const vacationRouter = createTRPCRouter({
             }
             const project = await ctx.prisma.project.findFirst({
                 where: {
-                    users: {
-                        some: {
-                            id: userId
-                        }
-                    }
+                    id: input.projectId,
                 }});
 
             const r = await ctx.prisma.vacation.create({

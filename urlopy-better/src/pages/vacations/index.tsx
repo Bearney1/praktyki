@@ -1,7 +1,7 @@
 
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
-import { Input, Modal, Select } from "@mantine/core";
+import { Button, Input, Modal, Select } from "@mantine/core";
 import { api } from "~/utils/api";
 import { useForm } from "@mantine/form";
 import { signOut, useSession } from "next-auth/react";
@@ -10,6 +10,7 @@ import Link from "next/link";
 import { VacationStatus, type WorkingType } from "@prisma/client";
 import { getServerAuthSession } from "~/server/auth";
 import { IncomingMessage, ServerResponse } from "http";
+import {useState} from "react";
 
 // enum VacationType {
 //   remote = "remote",
@@ -18,7 +19,12 @@ import { IncomingMessage, ServerResponse } from "http";
 
 export default function Page() {
   const sesion = useSession();
-  const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
+  const [projectId, setProjectId] = useState<string>("");
+  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({projectId});
+  const { data:projects } = api.vacation.getAllProjects.useQuery();
+  const projectIdChange = (e: string) => {
+    setProjectId(e)
+  }
   const {data: belongsTo} = api.vacation.checkIfUserBelongsToAnyProject.useQuery()
 
   const { mutateAsync: addVacation } =
@@ -77,6 +83,7 @@ export default function Page() {
         endDate: values.date[1],
         reason: values.why,
         workingType: values.type as WorkingType,
+        projectId
       })
         .then(() =>
           refetch()
@@ -182,9 +189,20 @@ export default function Page() {
             <div>
           
 
-              <button className="btn mb-4 text-white" onClick={open}>
+             <div className="flex">
+             <Select
+             data={projects?.map(e => {
+                return {value: e.id, label: e.name}
+              }) ?? []}
+              className="mt-2"
+              value={projectId}
+              onChange={projectIdChange}
+              size="md"
+             />
+             <Button className="btn mb-4 ml-4 mt-1 text-white bg-[#25262b] " onClick={open}>
                 Add vacation
-              </button>
+              </Button>
+             </div>
             </div>
           </div>
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
