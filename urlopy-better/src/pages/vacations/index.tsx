@@ -193,11 +193,11 @@ export default function Page() {
                 tabIndex={0}
                 className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
               >
-                <li>
+                {/* <li>
                   <Link href="/profile">
                   Profile
                   </Link>
-                </li>
+                </li> */}
                 <li>
                   <div onClick={() => {signOut().catch(e => console.log(e))}}>
                     Logout 
