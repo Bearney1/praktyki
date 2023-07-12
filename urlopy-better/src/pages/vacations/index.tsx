@@ -19,9 +19,9 @@ import {useState} from "react";
 
 export default function Page() {
   const sesion = useSession();
-  const [projectId, setProjectId] = useState<string>("");
-  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({projectId});
   const { data:projects } = api.vacation.getAllProjects.useQuery();
+  const [projectId, setProjectId] = useState<string>(projects?.[0]?.id ?? "")
+  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({projectId});
   const projectIdChange = (e: string) => {
     setProjectId(e)
   }
@@ -61,7 +61,8 @@ export default function Page() {
         if (value.length < 10) {
           return "Powód musi mieć conajmniej 10 znaków";
         }
-      }
+      },
+      
     }
   });
 
