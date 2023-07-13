@@ -30,6 +30,8 @@ export default function Page() {
   const { data, status, refetch } = api.admin.getAllInfoProject.useQuery({
     id: router.query.slug as string,
   });
+ 
+
   const {data :usersFromDb} = api.admin.getUsersForProject.useQuery({
     id: router.query.slug as string,
   });
@@ -146,8 +148,20 @@ export default function Page() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center  font-semibold text-white">
       <h1 className="text-4xl">Admin {router.query.slug}</h1>
+      <div className="justify-center mt-8 grid grid-flow-col auto-cols-max avatar-group w-full ">
+        {users.map((user) => (<div className={`avatar rounded-full mx-4 `} key={user.id}>
+            {user.image && (
+              <Image
+                src={user.image}
+                alt="avatar"
+                width="35"
+                height="35"
+              />
+            )}
+        </div>))}
+      </div>
       {status == "success" && (
-        <div className="container mx-auto py-10">
+        <div className="container mx-auto pb-10 pt-5">
           {/* <dialog ref={ref} className="modal"> */}
 
           <Modal opened={opened} onClose={close} radius="lg">
