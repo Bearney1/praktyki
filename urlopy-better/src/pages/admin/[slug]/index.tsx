@@ -30,6 +30,8 @@ export default function Page() {
   const { data, status, refetch } = api.admin.getAllInfoProject.useQuery({
     id: router.query.slug as string,
   });
+
+  const { data: userAvailable } = api.admin.getUsersForPojectAndCheckIfTheyAreInVacation.useQuery({id: router.query.slug as string})
  
 
   const {data :usersFromDb} = api.admin.getUsersForProject.useQuery({
@@ -149,13 +151,15 @@ export default function Page() {
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center  font-semibold text-white">
       <h1 className="text-4xl">Admin {router.query.slug}</h1>
       <div className="justify-center mt-8 grid grid-flow-col auto-cols-max avatar-group w-full ">
-        {users.map((user) => (<div className={`avatar rounded-full mx-4 `} key={user.id}>
-            {user.image && (
+        {userAvailable?.map((user) => (<div className="mx-4" key={user.id}>
+            {user.avatar && (
               <Image
-                src={user.image}
+                src={user.avatar}
                 alt="avatar"
-                width="35"
-                height="35"
+                className={`avatar ring ${user.status==="working"? "ring-green-600": "ring-gray-600"} m-2`}
+                title={`${user.name} is ${user.status}`}
+                width="75"
+                height="75"
               />
             )}
         </div>))}

@@ -1,4 +1,4 @@
-import { VacationStatus } from "@prisma/client";
+import { User, VacationStatus } from "@prisma/client";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -207,6 +207,64 @@ export const adminRouter = createTRPCRouter({
       }
     });
     return project;
+  }
+  ),
+  getUsersForPojectAndCheckIfTheyAreInVacation: protectedProcedure.input(z.object({
+    id: z.string(),
+  })).query(async ({ ctx, input }) => {
+    const today = new Date();
+    const project = await ctx.prisma.project.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        users: true
+      }
+    });
+    const users = project!.users;
+    const vacations = await ctx.prisma.vacation.findMany({
+      where: {
+        startDate: {
+          lte: today
+        },
+        endDate: {
+          gte: today
+        },
+        projectId: input.id
+      }
+    });
+    const usersInVacation = vacations.map((vacation) => vacation.userId);
+    // const usersNotInVacation = users.filter((user) => !usersInVacation.includes(user.id));
+    // return usersNotInVacation;
+    enum Status {
+      vacation = "vacation",
+      working = "working"
+    }
+    interface UserInVacation {
+      id: string;
+      name: string;
+      avatar: string | null;
+      status: Status;
+    }
+    let usersNotInVacation: UserInVacation[] = [];
+    for (let i = 0; i < users.length; i++) {
+      if (!usersInVacation.includes(users[i]!.id)) {
+        usersNotInVacation = [...usersNotInVacation, {
+          id: users[i]?.id,
+          name: users[i]?.name,
+          avatar: users[i]?.image,
+          status: Status.working
+        } as UserInVacation];
+      } else {
+        usersNotInVacation = [...usersNotInVacation, {
+          id: users[i]?.id,
+          name: users[i]?.name,
+          avatar: users[i]?.image,
+          status: Status.vacation
+        } as UserInVacation];
+      }
+    }
+    return usersNotInVacation;
   }
   ),
 });
