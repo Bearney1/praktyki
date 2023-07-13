@@ -8,4 +8,4 @@
 6. Uruchom komendę `docker compose exec next npx prisma studio`
 7. Dodaj projekt
 8. Wyłącz studio
-9. Strona powinna działać -> można usunąć port 5555 z docker file
+9. Strona powinna działać -> można usunąć port 5555 z docker-compose file
