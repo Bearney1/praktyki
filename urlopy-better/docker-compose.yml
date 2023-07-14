@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.0'
 services:
   db:
     image: postgres
@@ -13,6 +13,7 @@ services:
 
   next:
     image: marusiella/edit
+    pull_policy: always
     build: .
     ports:
       - "3000:3000"
