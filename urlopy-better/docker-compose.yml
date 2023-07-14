@@ -12,6 +12,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   next:
+    image: marusiella/edit
     build: .
     ports:
       - "3000:3000"
