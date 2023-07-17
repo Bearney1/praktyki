@@ -44,6 +44,8 @@ export default function Page() {
         <div className="flex">
         <div className="flex flex-col mx-4">
           <span className="countdown font-mono text-6xl">
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/* @ts-ignore */}
             <span style={{ "--value": count?.online }}></span>
           </span>
           Online
@@ -53,6 +55,8 @@ export default function Page() {
         </div>
         <div className="flex flex-col mx-4">
           <span className="countdown font-mono text-6xl">
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/* @ts-ignore */}
             <span style={{ "--value": count?.onVacation }}></span>
           </span>
           Offline
