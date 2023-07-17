@@ -15,7 +15,7 @@ import { type IncomingMessage, type ServerResponse } from "http";
 
 enum VacationType {
   remote = "remote",
-  office = "office",
+  office = "vacation",
 }
 
 interface User {
@@ -43,11 +43,11 @@ export default function Page() {
     if (usersFromDb) {
       let a: User[] = [];
 
-      usersFromDb.users.forEach((user) => {
+      usersFromDb.forEach((user) => {
         const p: User = {
           id: user.id,
-          name: user.name,
-          image: user.image,
+          name: user.user.name,
+          image: user.user.image,
         };
         a = [...a, p];
       });
@@ -284,7 +284,7 @@ export default function Page() {
                     </td>
                     <td
                       className={`text-white ${
-                        vacation.workingType == "office"
+                        vacation.workingType == "vacation"
                           ? "text-green-400"
                           : "text-blue-400"
                       }`}
