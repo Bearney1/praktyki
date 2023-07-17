@@ -109,14 +109,7 @@ export default function Home() {
 
 export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
   const session = await getServerAuthSession(ctx);
-  if (session?.user.role === "admin") {
-    return {
-      redirect: {
-        destination: "/admin",
-        permanent: false,
-      },
-    }
-  } else if (session?.user.role === "user") {
+ if (session?.user.role === "user" || session?.user.role === "admin") {
     return {
       redirect: {
         destination: "/vacations",
