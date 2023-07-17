@@ -95,7 +95,7 @@ export const adminRouter = createTRPCRouter({
     startDate: z.date(),
     endDate: z.date(),
     reason: z.string(),
-    workingType: z.enum(["remote", "office"]),
+    workingType: z.enum(["remote", "vacation"]),
     userId: z.string(),
     projectId: z.string()
   })).mutation(
@@ -130,15 +130,15 @@ export const adminRouter = createTRPCRouter({
     if (ctx.session.user.role !== "admin") {
       throw new Error("You are not admin");
     }
-    const project = await ctx.prisma.project.findUnique({
+    const v = await ctx.prisma.vacation.findMany({
       where: {
-        id: input.id
+        projectId: input.id
       },
       include: {
-        users: true
+        user: true
       }
     });
-    return project;
+    return v;
   }
   ),
   getAllUsers: protectedProcedure.query(async ({ ctx }) => {
@@ -265,6 +265,108 @@ export const adminRouter = createTRPCRouter({
       }
     }
     return usersNotInVacation;
+  }
+  ),
+  getAllCountAndOnVacationCount: protectedProcedure.input(z.object({
+    id: z.string(),
+  })).query(async ({ ctx, input }) => {
+    interface Count {
+      online: number;
+      onVacation: number;
+    }
+    const today = new Date();
+    const project = await ctx.prisma.project.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        users: true
+      }
+    });
+    const users = project!.users;
+    const vacations = await ctx.prisma.vacation.findMany({
+      where: {
+        startDate: {
+          lte: today
+        },
+        endDate: {
+          gte: today
+        },
+        projectId: input.id
+      }
+    });
+    const usersInVacation = vacations.map((vacation) => vacation.userId);
+    const usersNotInVacation = users.filter((user) => !usersInVacation.includes(user.id));
+    const count: Count = {
+      online: usersNotInVacation.length,
+      onVacation: usersInVacation.length
+    };
+    return count;
+  }),
+  getUsersForProjectForToday: protectedProcedure.input(z.object({
+    id: z.string()
+  })).query(async ({ ctx, input }) => {
+    if (ctx.session.user.role !== "admin") {
+      throw new Error("You are not admin");
+    }
+    const today = new Date();
+    const v = await ctx.prisma.vacation.findMany({
+      where: {
+        projectId: input.id,
+        startDate: {
+          lte: today
+        },
+        endDate: {
+          gte: today
+        }
+      },
+      include: {
+        user: true
+      }
+    });
+    const allUsers = await ctx.prisma.project.findUnique({
+      where: {
+        id: input.id
+      },
+      include: {
+        users: true
+      }
+    });
+   
+    interface UserInVacation {
+      id: string;
+      name: string;
+      avatar: string | null;
+      startDate: Date | null;
+      endDate: Date | null;
+      Type: string | null;
+    }
+    let usersInVacation: UserInVacation[] = [];
+    for (let i = 0; i < v.length; i++) {
+      usersInVacation = [...usersInVacation, {
+        id: v[i]?.user?.id,
+        name: v[i]?.user?.name,
+        avatar: v[i]?.user?.image,
+        startDate: v[i]?.startDate,
+        endDate: v[i]?.endDate,
+        Type: v[i]?.workingType
+      } as UserInVacation];
+    }
+    const usersNotInVacation = allUsers!.users.filter((user) => !usersInVacation.map((user) => user.id).includes(user.id));
+    let usersNotInVacationWithStatus: UserInVacation[] = [];
+    for (let i = 0; i < usersNotInVacation.length; i++) {
+      usersNotInVacationWithStatus = [...usersNotInVacationWithStatus, {
+        id: usersNotInVacation[i]?.id,
+        name: usersNotInVacation[i]?.name,
+        avatar: usersNotInVacation[i]?.image,
+        startDate: null,
+        endDate: null,
+        Type: "office",
+      } as UserInVacation];
+    }
+    const allUsersForToday = [...usersInVacation, ...usersNotInVacationWithStatus];
+    return allUsersForToday;
+
   }
   ),
 });

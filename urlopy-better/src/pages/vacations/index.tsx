@@ -1,4 +1,3 @@
-
 import { DatePickerInput } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Input, Modal, Select, Notification } from "@mantine/core";
@@ -10,8 +9,8 @@ import Link from "next/link";
 import { VacationStatus, type WorkingType } from "@prisma/client";
 import { getServerAuthSession } from "~/server/auth";
 import { type IncomingMessage, type ServerResponse } from "http";
-import {useEffect, useState} from "react";
-import {  IconX } from '@tabler/icons-react';
+import { useEffect, useState } from "react";
+import { IconX } from "@tabler/icons-react";
 
 // enum VacationType {
 //   remote = "remote",
@@ -20,14 +19,18 @@ import {  IconX } from '@tabler/icons-react';
 
 export default function Page() {
   const sesion = useSession();
-  const [err, setErr] = useState<string>("")
-  const { data:projects, error: errorProjects } = api.vacation.getAllProjects.useQuery();
-  const [projectId, setProjectId] = useState<string>(projects?.[0]?.id ?? "")
-  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({projectId});
+  const [err, setErr] = useState<string>("");
+  const { data: projects, error: errorProjects } =
+    api.vacation.getAllProjects.useQuery();
+  const [projectId, setProjectId] = useState<string>(projects?.[0]?.id ?? "");
+  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({
+    projectId,
+  });
   const projectIdChange = (e: string) => {
-    setProjectId(e)
-  }
-  const {data: belongsTo} = api.vacation.checkIfUserBelongsToAnyProject.useQuery()
+    setProjectId(e);
+  };
+  const { data: belongsTo } =
+    api.vacation.checkIfUserBelongsToAnyProject.useQuery();
 
   const { mutateAsync: addVacation } =
     api.vacation.createVacation.useMutation();
@@ -48,19 +51,18 @@ export default function Page() {
   };
   useEffect(() => {
     if (status == "error") {
-      setErr("Wystąpił błąd")
+      setErr("Wystąpił błąd");
       setTimeout(() => {
-        setErr("")
+        setErr("");
       }, 3000);
     }
     if (errorProjects) {
-      setErr("Wystąpił błąd")
+      setErr("Wystąpił błąd");
       setTimeout(() => {
-        setErr("")
+        setErr("");
       }, 3000);
-    } 
-
-  }, [status,errorProjects])
+    }
+  }, [status, errorProjects]);
   const form = useForm({
     initialValues: {
       date: [new Date(), new Date()],
@@ -69,26 +71,23 @@ export default function Page() {
     },
     validate: {
       date: (value) => {
-        
         if (!value[0] || !value[1]) {
           return "Musisz wybrać datę";
-        }        
-            
+        }
       },
       why: (value) => {
         if (value.length < 10) {
           return "Powód musi mieć conajmniej 10 znaków";
         }
       },
-      
-    }
+    },
   });
 
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
     if (!projectId) {
-      setErr("Wystąpił błąd")
+      setErr("Wystąpił błąd - nie wybrano projektu");
       setTimeout(() => {
-        setErr("")
+        setErr("");
       }, 3000);
     }
     values.date[0] &&
@@ -99,7 +98,7 @@ export default function Page() {
         endDate: values.date[1],
         reason: values.why,
         workingType: values.type as WorkingType,
-        projectId
+        projectId,
       })
         .then(() =>
           refetch()
@@ -112,8 +111,15 @@ export default function Page() {
     return (
       <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
         <div className="container mx-auto py-10">
-          <div className="text-4xl">Nie należysz do żadnego projektu. Skontaktuj się z administratorem.</div>
-          <div className="btn btn-xl mt-4 text-white" onClick={() => {signOut().catch(e => console.log(e))}}>
+          <div className="text-4xl">
+            Nie należysz do żadnego projektu. Skontaktuj się z administratorem.
+          </div>
+          <div
+            className="btn-xl btn mt-4 text-white"
+            onClick={() => {
+              signOut().catch((e) => console.log(e));
+            }}
+          >
             Wyloguj
           </div>
         </div>
@@ -122,9 +128,18 @@ export default function Page() {
   }
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
-       {err && <Notification withCloseButton={false} radius="md" title="Wystąpił błąd" className="fixed bottom-0 right-0 m-4" icon={<IconX size="1.1rem" />} color="red">
-        {err}
-      </Notification>}
+      {err && (
+        <Notification
+          withCloseButton={false}
+          radius="md"
+          title="Wystąpił błąd"
+          className="fixed bottom-0 right-0 m-4"
+          icon={<IconX size="1.1rem" />}
+          color="red"
+        >
+          {err}
+        </Notification>
+      )}
       {status == "success" && (
         <div className="container mx-auto py-10">
           {/* <dialog ref={ref} className="modal"> */}
@@ -134,33 +149,35 @@ export default function Page() {
               <div className="mb-4 text-2xl font-bold text-white">
                 Dodaj urlop
               </div>
-            
-              
-                <DatePickerInput
+
+              <DatePickerInput
                 placeholder="Wybierz datę"
                 dropdownType="modal"
                 type="range"
                 mx="auto"
                 {...form.getInputProps("date")}
               ></DatePickerInput>
-            {(new Date()).getHours() >= 12 &&
-              <Input
-                className="mt-2"
-                placeholder="Powód"
-                radius="md"
-                {...form.getInputProps("why")}
-              ></Input>
-              }
-              
+              {new Date().getHours() >= 12 && (
+                <Input
+                  className="mt-2"
+                  placeholder="Powód"
+                  radius="md"
+                  {...form.getInputProps("why")}
+                ></Input>
+              )}
+
               <Select
                 data={[
                   { value: "remote", label: "Zdalna praca" },
-                  { value: "office", label: "Praca w biurze" },
+                  { value: "vacation", label: "Urlop" },
                 ]}
                 className="mt-2"
                 placeholder="Typ pracy"
-                transitionProps={{ transition: 'pop-top-left', duration: 80, timingFunction: 'ease' }}
-
+                transitionProps={{
+                  transition: "pop-top-left",
+                  duration: 80,
+                  timingFunction: "ease",
+                }}
                 radius="md"
                 {...form.getInputProps("type")}
               />
@@ -175,7 +192,7 @@ export default function Page() {
 
           <div className="flex justify-between">
             <div className="dropdown">
-              <label tabIndex={0} >
+              <label tabIndex={0}>
                 <div className="avatar">
                   <div className="rounded-full">
                     {sesion.data?.user.image && (
@@ -199,32 +216,60 @@ export default function Page() {
                   </Link>
                 </li> */}
                 <li>
-                  <div onClick={() => {signOut().catch(e => console.log(e))}}>
-                    Logout 
+                  <div
+                    onClick={() => {
+                      signOut().catch((e) => console.log(e));
+                    }}
+                  >
+                    Logout
                   </div>
                 </li>
               </ul>
             </div>
             <div>
-          
+              <div className="flex">
+                {sesion.data?.user.role === "admin" && (
+                  <>
+                    {" "}
+                    <Link
+                      className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white"
+                      href="/admin/users"
+                    >
+                      Zarządzanie urzytkownikami
+                    </Link>
+                    <Link
+                      className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white"
+                      href="/admin/check"
+                    >
+                      Sprawdź team
+                    </Link>
+                  </>
+                )}
+                <Select
+                  data={
+                    [
+                      {
+                        value: "",
+                        label: "Wszystkie",
+                      },
+                      ...(projects?.map((e) => {
+                        return { value: e.id, label: e.name };
+                      }) ?? []),
+                    ] ?? []
+                  }
+                  className="ml-4 mt-2"
+                  value={projectId}
+                  onChange={projectIdChange}
+                  size="md"
+                />
 
-             <div className="flex">
-             <Select
-             data={[{
-                value: "",
-                label: "Wszystkie"
-              },...(projects?.map(e => {
-                return {value: e.id, label: e.name}
-              })) ?? []] ?? []}
-              className="mt-2"
-              value={projectId}
-              onChange={projectIdChange}
-              size="md"
-             />
-             <Button className="btn mb-4 ml-4 mt-1 text-white bg-[#25262b] " onClick={open}>
-                Add vacation
-              </Button>
-             </div>
+                <Button
+                  className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white "
+                  onClick={open}
+                >
+                  Add vacation
+                </Button>
+              </div>
             </div>
           </div>
           <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -235,7 +280,9 @@ export default function Page() {
                   <th scope="col">End</th>
                   <th scope="col">Reason</th>
                   <th scope="col">Type</th>
-                  <th scope="col" className="text-right">Status</th>
+                  <th scope="col" className="text-right">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -252,7 +299,7 @@ export default function Page() {
                     </td>
                     <td
                       className={`text-white ${
-                        vacation.workingType == "office"
+                        vacation.workingType == "vacation"
                           ? "text-green-400"
                           : "text-blue-400"
                       }`}
@@ -260,9 +307,7 @@ export default function Page() {
                       {vacation.workingType}
                     </td>
                     <td className="text-right">
-                      <div
-                        className={`${color(vacation.status)} font-bold`}
-                      >
+                      <div className={`${color(vacation.status)} font-bold`}>
                         {vacation.status.toUpperCase()}
                       </div>
                     </td>
@@ -279,13 +324,15 @@ export default function Page() {
   );
 }
 
-
-export async function getServerSideProps(ctx: { req: IncomingMessage & { cookies: Partial<{ [key: string]: string; }>; }; res: ServerResponse<IncomingMessage>; }) {
+export async function getServerSideProps(ctx: {
+  req: IncomingMessage & { cookies: Partial<{ [key: string]: string }> };
+  res: ServerResponse<IncomingMessage>;
+}) {
   const session = await getServerAuthSession(ctx);
   if (session?.user.role === "user" || session?.user.role === "admin") {
     return {
-      props: {}
-    }
+      props: {},
+    };
   }
   return {
     redirect: {

@@ -3,7 +3,6 @@
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
 }
 
 datasource db {
@@ -96,7 +95,7 @@ enum VacationStatus {
 }
 
 enum WorkingType {
-    office
+    vacation
     remote
 }
 

@@ -67,7 +67,7 @@ export const vacationRouter = createTRPCRouter({
         startDate: z.date(),
         endDate: z.date(),
         reason: z.string(),
-        workingType: z.enum(["remote", "office"]),
+        workingType: z.enum(["remote", "vacation"]),
         projectId: z.string()
     })).mutation(
         async ({ ctx, input }) => {
