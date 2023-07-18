@@ -3,17 +3,17 @@ import React, { useState } from "react";
 import { api } from "~/utils/api";
 
 export default function Page() {
-  const { data: projects } = api.admin.getAllProjects.useQuery({
+  const { data: projects } = api.vacation.getAllProjectsF.useQuery({
     q: "",
   });
   const [projectId, setProjectId] = useState<string>("");
-  const { data: users } = api.admin.getUsersForProjectForToday.useQuery({
+  const { data: users } = api.vacation.getUsersForProjectForToday.useQuery({
     id: projectId,
   });
-  const { data: projectInfo } = api.admin.getAllInfoProject.useQuery({
-    id: projectId,
-  });
-  const { data: count } = api.admin.getAllCountAndOnVacationCount.useQuery({
+  // const { data: projectInfo } = api.admin.getAllInfoProject.useQuery({
+  //   id: projectId,
+  // });
+  const { data: count } = api.vacation.getAllCountAndOnVacationCount.useQuery({
     id: projectId,
   });
 

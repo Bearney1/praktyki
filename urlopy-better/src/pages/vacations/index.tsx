@@ -313,22 +313,19 @@ export default function Page() {
             <div>
               <div className="flex">
                 {sesion.data?.user.role === "admin" && (
-                  <>
-                    {" "}
                     <Link
                       className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white"
                       href="/admin/users"
                     >
                       Zarządzanie urzytkownikami
                     </Link>
-                    <Link
+                )}
+                <Link
                       className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white"
                       href="/admin/check"
                     >
                       Sprawdź team
                     </Link>
-                  </>
-                )}
                 <Select
                   data={
                     [
