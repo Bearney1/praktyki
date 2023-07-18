@@ -152,9 +152,16 @@ export default function Page() {
     setDates([new Date(), new Date()]);
     setWhy("");
     setType("");
-
+    
   };
-
+  const [minDate, setMinDate] = useState<Date>(new Date());
+  useEffect(() => {
+    // add one day to minDate
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setMinDate(tomorrow);
+  }, [])
+  
   if (!belongsTo) {
     return (
       <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
@@ -201,7 +208,6 @@ export default function Page() {
         return "Nieznany";
     }
   };
-
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {err && (
@@ -233,7 +239,7 @@ export default function Page() {
                 allowSingleDateInRange 
                 value={dates}
                 onChange={setDates}
-                minDate={new Date()}
+                minDate={minDate}
               ></DatePickerInput>
                {requiredReason &&  <Input
                   className="mt-2"
