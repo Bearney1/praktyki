@@ -90,6 +90,7 @@ export default function Page() {
         setErr("");
       }, 3000);
     }
+    
     values.date[0] &&
       values.date[1] &&
       projectId &&
@@ -126,6 +127,34 @@ export default function Page() {
       </div>
     );
   }
+
+  const toPlVac = (stat: VacationStatus) => {
+    switch (stat) {
+      case "approved":
+        return "Zaakceptowany";
+      case "rejected":
+        return "Odrzucony";
+      case "pending":
+        return "Oczekujący";
+      case "new":
+        return "Nowy";
+                               
+      default:
+        return "Nieznany";
+    }
+  }
+
+  const toPlType = (stat: WorkingType) => {
+    switch (stat) {
+      case "remote":
+        return "Zdalna praca";
+      case "vacation":
+        return "Urlop";
+      default:
+        return "Nieznany";
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {err && (
@@ -267,7 +296,7 @@ export default function Page() {
                   className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white "
                   onClick={open}
                 >
-                  Add vacation
+                  Dodaj urlop
                 </Button>
               </div>
             </div>
@@ -277,9 +306,9 @@ export default function Page() {
               <thead className="text-xl text-white">
                 <tr>
                   <th scope="col">Start</th>
-                  <th scope="col">End</th>
-                  <th scope="col">Reason</th>
-                  <th scope="col">Type</th>
+                  <th scope="col">Koniec</th>
+                  <th scope="col">Powód</th>
+                  <th scope="col">Typ</th>
                   <th scope="col" className="text-right">
                     Status
                   </th>
@@ -298,17 +327,17 @@ export default function Page() {
                       {vacation.reason}
                     </td>
                     <td
-                      className={`text-white ${
-                        vacation.workingType == "vacation"
+                      className={`${
+                        vacation.workingType == "remote"
                           ? "text-green-400"
                           : "text-blue-400"
                       }`}
                     >
-                      {vacation.workingType}
+                      {toPlType(vacation.workingType)}
                     </td>
                     <td className="text-right">
                       <div className={`${color(vacation.status)} font-bold`}>
-                        {vacation.status.toUpperCase()}
+                        {toPlVac(vacation.status)}
                       </div>
                     </td>
                   </tr>
