@@ -22,13 +22,7 @@ export default function Page() {
   const [err, setErr] = useState<string>("");
   const { data: projects, error: errorProjects } =
     api.vacation.getAllProjects.useQuery();
-  const [projectId, setProjectId] = useState<string>(projects?.[0]?.id ?? "");
-  const { data, status, refetch } = api.vacation.getAllForUser.useQuery({
-    projectId,
-  });
-  const projectIdChange = (e: string) => {
-    setProjectId(e);
-  };
+  const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
   const { data: belongsTo } =
     api.vacation.checkIfUserBelongsToAnyProject.useQuery();
 
@@ -89,24 +83,16 @@ export default function Page() {
   const [type, setType] = useState<string>("");
   const [requiredReason, setRequiredReason] = useState(false);
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
-    if (!projectId) {
-      setErr("Wystąpił błąd - nie wybrano projektu");
-      setTimeout(() => {
-        setErr("");
-      }, 3000);
-    }
-    
+
 
 
     values.date[0] &&
       values.date[1] &&
-      projectId &&
       addVacation({
         startDate: values.date[0],
         endDate: values.date[1],
         reason: values.why,
         workingType: values.type as WorkingType,
-        projectId,
       })
         .then(() =>
           refetch()
@@ -135,12 +121,7 @@ export default function Page() {
   }, [dates])
 
   const handleAdd2 = () => {
-    if (!projectId) {
-      setErr("Wystąpił błąd - nie wybrano projektu");
-      setTimeout(() => {
-        setErr("");
-      }, 3000);
-    }
+   
     if (requiredReason && !why && why.length < 10) {
       setErr("Wystąpił błąd - musisz podać powód");
       setTimeout(() => {
@@ -326,23 +307,7 @@ export default function Page() {
                     >
                       Sprawdź team
                     </Link>
-                <Select
-                  data={
-                    [
-                      {
-                        value: "",
-                        label: "Wszystkie",
-                      },
-                      ...(projects?.map((e) => {
-                        return { value: e.id, label: e.name };
-                      }) ?? []),
-                    ] ?? []
-                  }
-                  className="ml-4 mt-2"
-                  value={projectId}
-                  onChange={projectIdChange}
-                  size="md"
-                />
+                
 
                 <Button
                   className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white "

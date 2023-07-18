@@ -19,35 +19,20 @@ export const vacationRouter = createTRPCRouter({
     // getSecretMessage: protectedProcedure.query(() => {
     //   return "you can now see this secret message!";
     // }),
-    getAllForUser: protectedProcedure.input(z.object({projectId:z.string()})).query(async ({ ctx, input }) => {
-        if (input.projectId === "") {
-            const r = await ctx.prisma.vacation.findMany({
-                where: {
-                    user: {
-                        id: ctx.session.user.id
-                    }
-                },
-                orderBy: {
-                    startDate: "desc"
-                }
-            });
-            return r;
-        }
-        
-        const r = await ctx.prisma.vacation.findMany({
-            where: {
-                user: {
-                    id: ctx.session.user.id
-                },
-                project: {
-                    id: input.projectId
-                }
-            },
-            orderBy: {
-                startDate: "desc"
+    getAllForUser: protectedProcedure.query(async ({ ctx }) => {
+      const r = await ctx.prisma.vacation.findMany({
+        where: {
+            user: {
+                id: ctx.session.user.id
             }
-        });
-        return r;
+        },
+        distinct: ["startDate", "endDate", "reason", "workingType"],
+        
+        orderBy: {
+            startDate: "desc"
+        }
+    });
+    return r;
    
     }),
     getAllProjects: protectedProcedure.query(async ({ ctx }) => {
@@ -68,7 +53,6 @@ export const vacationRouter = createTRPCRouter({
         endDate: z.date(),
         reason: z.string(),
         workingType: z.enum(["remote", "vacation"]),
-        projectId: z.string()
     })).mutation(
         async ({ ctx, input }) => {
             const userId = ctx.session.user.id;
@@ -80,31 +64,56 @@ export const vacationRouter = createTRPCRouter({
             if (!user) {
                 throw new Error("User not found");
             }
-            const project = await ctx.prisma.project.findFirst({
+            const project = await ctx.prisma.project.findMany({
                 where: {
-                    id: input.projectId,
-                }});
-
-            const r = await ctx.prisma.vacation.create({
-                data: {
-                    startDate: input.startDate,
-                    endDate: input.endDate,
-                    reason: input.reason,
-                    workingType: input.workingType,
-                    user: {
-                        connect: {
+                    users: {
+                        some: {
                             id: userId
                         }
-                    },
-                    project: {
-                        connect: {
-                            id: project?.id
+                    }
+                }});
+            if (!project) {
+                throw new Error("Project not found");
+            }
+            for (let i = 0; i < project.length; i++) {
+                const r = await ctx.prisma.vacation.create({
+                    data: {
+                        startDate: input.startDate,
+                        endDate: input.endDate,
+                        reason: input.reason,
+                        workingType: input.workingType,
+                        user: {
+                            connect: {
+                                id: userId
+                            }
+                        },
+                        project: {
+                            connect: {
+                                id: project[i]!.id
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
+            // const r = await ctx.prisma.vacation.create({
+            //     data: {
+            //         startDate: input.startDate,
+            //         endDate: input.endDate,
+            //         reason: input.reason,
+            //         workingType: input.workingType,
+            //         user: {
+            //             connect: {
+            //                 id: userId
+            //             }
+            //         },
+            //         project: {
+            //             connect: {
 
-            return r;
+            //         }
+            //     }
+            // });
+
+            // return r;
         }
     ),
     checkIfUserBelongsToAnyProject: protectedProcedure.query(async ({ ctx }) => {
