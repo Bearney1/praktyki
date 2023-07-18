@@ -1,15 +1,24 @@
 import { Select } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 
 export default function Page() {
+  const [projectId, setProjectId] = useState<string>("");
   const { data: projects } = api.vacation.getAllProjectsF.useQuery({
     q: "",
+
   });
-  const [projectId, setProjectId] = useState<string>("");
+  useEffect(()=> {
+    if (projects && projects[0] != undefined) {
+      setProjectId(projects[0].id)
+    }
+  },[])
+  const [dayToCheck, setDayToCheck] = useState<Date>(new Date());
   const { data: users } = api.vacation.getUsersForProjectForToday.useQuery({
     id: projectId,
+    day: dayToCheck,
   });
   // const { data: projectInfo } = api.admin.getAllInfoProject.useQuery({
   //   id: projectId,
@@ -21,6 +30,7 @@ export default function Page() {
   const projectIdChange = (e: string) => {
     setProjectId(e);
   };
+
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
       <div className="flex w-full items-center">
@@ -37,6 +47,14 @@ export default function Page() {
           w="100%"
           searchable
           radius="md"
+        />
+        <DatePickerInput
+          value={dayToCheck}
+          onChange={e => setDayToCheck(e!)}
+          size="md"
+          w="100%"
+          radius="md"
+          className="ml-4 max-w-md"
         />
         <Link className="btn ml-8 h-full px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
       </div>

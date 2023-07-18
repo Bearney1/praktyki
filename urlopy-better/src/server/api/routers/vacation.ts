@@ -164,12 +164,13 @@ getAllProjectsF: protectedProcedure
       return projects;
     }),
     getUsersForProjectForToday: protectedProcedure.input(z.object({
-        id: z.string()
+        id: z.string(),
+        day: z.date()
       })).query(async ({ ctx, input }) => {
         if (ctx.session.user.role !== "admin") {
           throw new Error("You are not admin");
         }
-        const today = new Date();
+        const today = input.day
         const v = await ctx.prisma.vacation.findMany({
           where: {
             projectId: input.id,
