@@ -1,4 +1,5 @@
 import { Select } from "@mantine/core";
+import Link from "next/link";
 import React, { useState } from "react";
 import { api } from "~/utils/api";
 
@@ -37,7 +38,7 @@ export default function Page() {
           searchable
           radius="md"
         />
-        {/* <button className="btn ml-8 h-full px-8 text-white bg-[#25262b]">Wyszukaj</button> */}
+        <Link className="btn ml-8 h-full px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
       </div>
       <div className="mt-8 flex min-h-[150px] w-full rounded-2xl p-8 justify-center flex-col items-center">
         {/* <div className="text-4xl mb-4">{projectInfo?.name}</div> */}

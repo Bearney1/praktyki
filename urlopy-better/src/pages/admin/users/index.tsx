@@ -80,7 +80,10 @@ export default function Index() {
                 </li>
               </ul>
             </div>
-        <button className="btn" onClick={() => ref.current?.showModal()}>Utwórz projekt</button>
+        <div>
+        <Link className="btn mr-4 text-white" href="/vacations">Powrót</Link>
+        <button className="btn text-white" onClick={() => ref.current?.showModal()}>Utwórz projekt</button>
+        </div>
       </div>
       <dialog ref={ref} className="modal">
         <form method="dialog" className="modal-box" onSubmit={form.onSubmit(handleSubmit)}>

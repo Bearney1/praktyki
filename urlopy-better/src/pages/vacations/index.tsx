@@ -233,7 +233,7 @@ export default function Page() {
               <Select
                 data={[
                   { value: "remote", label: "Zdalna praca" },
-                  { value: "vacation", label: "Urlop" },
+                  { value: "vacation", label: "Nieobecność" },
                 ]}
                 className="mt-2"
                 placeholder="Typ pracy"
