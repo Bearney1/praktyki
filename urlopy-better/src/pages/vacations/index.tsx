@@ -1,4 +1,4 @@
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DatesRangeValue } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Input, Modal, Select, Notification } from "@mantine/core";
 import { api } from "~/utils/api";
@@ -63,26 +63,31 @@ export default function Page() {
       }, 3000);
     }
   }, [status, errorProjects]);
-  const form = useForm({
-    initialValues: {
-      date: [new Date(), new Date()],
-      why: "",
-      type: "",
-    },
-    validate: {
-      date: (value) => {
-        if (!value[0] || !value[1]) {
-          return "Musisz wybrać datę";
-        }
-      },
-      why: (value) => {
-        if (value.length < 10) {
-          return "Powód musi mieć conajmniej 10 znaków";
-        }
-      },
-    },
-  });
+  // const form = useForm({
+  //   initialValues: {
+  //     date: [new Date(), new Date()],
+  //     why: "",
+  //     type: "",
+  //   },
+  //   validate: {
+  //     date: (value) => {
+  //       if (!value[0] || !value[1]) {
+  //         return "Musisz wybrać datę";
+  //       }
+  //     },
+  //     why: (value) => {
+  //       if (value.length < 10) {
+  //         return "Powód musi mieć conajmniej 10 znaków";
+  //       }
+  //     },
+  //   },
+  // });
 
+  
+  const [dates, setDates] = useState<DatesRangeValue>([new Date(), new Date()]);
+  const [why, setWhy] = useState<string>("");
+  const [type, setType] = useState<string>("");
+  const [requiredReason, setRequiredReason] = useState(false);
   const handleAdd = (values: { date: Date[]; why: string; type: string }) => {
     if (!projectId) {
       setErr("Wystąpił błąd - nie wybrano projektu");
@@ -91,6 +96,8 @@ export default function Page() {
       }, 3000);
     }
     
+
+
     values.date[0] &&
       values.date[1] &&
       projectId &&
@@ -108,6 +115,46 @@ export default function Page() {
         )
         .catch((e) => console.log(e));
   };
+  useEffect(() => {
+    // Jeśli jest po 12:00 użytkownik może wpisać urlop na następny dzień ale wtedy musi się pokazać okienko do wpisania powodu
+    const now = new Date();
+    if (now.getHours() >= 12) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const start = dates[0]!;
+
+      if (start.getDate() == tomorrow.getDate()) {
+        setRequiredReason(true);
+      } else {
+        setRequiredReason(false);
+      }
+
+
+
+    }
+  }, [dates])
+
+  const handleAdd2 = () => {
+    if (!projectId) {
+      setErr("Wystąpił błąd - nie wybrano projektu");
+      setTimeout(() => {
+        setErr("");
+      }, 3000);
+    }
+    if (requiredReason && !why && why.length < 10) {
+      setErr("Wystąpił błąd - musisz podać powód");
+      setTimeout(() => {
+        setErr("");
+      }, 3000);
+      return
+    }
+    handleAdd({ date: dates as Date[], why, type });
+    setDates([new Date(), new Date()]);
+    setWhy("");
+    setType("");
+
+  };
+
   if (!belongsTo) {
     return (
       <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
@@ -174,7 +221,6 @@ export default function Page() {
           {/* <dialog ref={ref} className="modal"> */}
 
           <Modal opened={opened} onClose={close} radius="lg">
-            <form onSubmit={form.onSubmit(handleAdd)}>
               <div className="mb-4 text-2xl font-bold text-white">
                 Dodaj urlop
               </div>
@@ -185,16 +231,17 @@ export default function Page() {
                 type="range"
                 mx="auto"
                 allowSingleDateInRange 
-                {...form.getInputProps("date")}
+                value={dates}
+                onChange={setDates}
+                minDate={new Date()}
               ></DatePickerInput>
-              {new Date().getHours() >= 12 && (
-                <Input
+               {requiredReason &&  <Input
                   className="mt-2"
                   placeholder="Powód"
                   radius="md"
-                  {...form.getInputProps("why")}
-                ></Input>
-              )}
+                  value={why}
+                  onChange={(e) => setWhy(e.currentTarget.value)}
+                ></Input>}
 
               <Select
                 data={[
@@ -209,15 +256,16 @@ export default function Page() {
                   timingFunction: "ease",
                 }}
                 radius="md"
-                {...form.getInputProps("type")}
+                value={type}
+                onChange={(e) => setType(e!)}
               />
               <button
                 className="btn mt-4 text-white hover:bg-black"
-                type="submit"
+                // type="submit"
+                onClick={handleAdd2}
               >
                 Dodaj
               </button>
-            </form>
           </Modal>
 
           <div className="flex justify-between">
