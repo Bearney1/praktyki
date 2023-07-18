@@ -184,6 +184,7 @@ export default function Page() {
                 dropdownType="modal"
                 type="range"
                 mx="auto"
+                allowSingleDateInRange 
                 {...form.getInputProps("date")}
               ></DatePickerInput>
               {new Date().getHours() >= 12 && (
