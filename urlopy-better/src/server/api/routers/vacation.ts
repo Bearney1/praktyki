@@ -169,29 +169,7 @@ getAllProjectsF: protectedProcedure
       })).query(async ({ ctx, input }) => {
        
         const today = input.day
-        let orderBy = {};
-        if (input.sortBy === "Type") {
-          orderBy = {
-            workingType: input.sortType
-          };
-        }
-        if (input.sortBy === "StartDate") {
-          orderBy = {
-            startDate: input.sortType
-          };
-        }
-        if (input.sortBy === "EndDate") {
-          orderBy = {
-            endDate: input.sortType
-          };
-        }
-        if (input.sortBy === "Name") {
-          orderBy = {
-            user: {
-              name: input.sortType
-            }
-          };
-        }
+       
         
         const v = await ctx.prisma.vacation.findMany({
           where: {
@@ -206,7 +184,6 @@ getAllProjectsF: protectedProcedure
           include: {
             user: true
           },
-          orderBy: orderBy
         });
         const allUsers = await ctx.prisma.project.findUnique({
           where: {
@@ -249,6 +226,129 @@ getAllProjectsF: protectedProcedure
           } as UserInVacation];
         }
         const allUsersForToday = [...usersInVacation, ...usersNotInVacationWithStatus];
+        if (input.sortBy === "Type") {
+          if (input.sortType === "asc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.Type && b.Type) {
+                return a.Type.localeCompare(b.Type);
+              }
+              if (a.Type && !b.Type) {
+                return -1;
+              }
+              if (!a.Type && b.Type) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          if (input.sortType === "desc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.Type && b.Type) {
+                return b.Type.localeCompare(a.Type);
+              }
+              if (a.Type && !b.Type) {
+                return 1;
+              }
+              if (!a.Type && b.Type) {
+                return -1;
+              }
+              return 0;
+            });
+          }
+        }
+        if (input.sortBy === "StartDate") {
+          if (input.sortType === "asc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.startDate && b.startDate) {
+                return a.startDate.getTime() - b.startDate.getTime();
+              }
+              if (a.startDate && !b.startDate) {
+                return -1;
+              }
+              if (!a.startDate && b.startDate) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          if (input.sortType === "desc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.startDate && b.startDate) {
+                return b.startDate.getTime() - a.startDate.getTime();
+              }
+              if (a.startDate && !b.startDate) {
+                return 1;
+              }
+              if (!a.startDate && b.startDate) {
+                return -1;
+              }
+              return 0;
+            });
+          }
+        }
+        if (input.sortBy === "EndDate") {
+          if (input.sortType === "asc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.endDate && b.endDate) {
+                return a.endDate.getTime() - b.endDate.getTime();
+              }
+              if (a.endDate && !b.endDate) {
+                return -1;
+              }
+              if (!a.endDate && b.endDate) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          if (input.sortType === "desc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.endDate && b.endDate) {
+                return b.endDate.getTime() - a.endDate.getTime();
+              }
+              if (a.endDate && !b.endDate) {
+                return 1;
+              }
+              if (!a.endDate && b.endDate) {
+                return -1;
+              }
+              return 0;
+            });
+          }
+        }
+        if (input.sortBy === "Name") {
+          if (input.sortType === "asc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.name && b.name) {
+                return a.name.localeCompare(b.name);
+              }
+              if (a.name && !b.name) {
+                return -1;
+              }
+              if (!a.name && b.name) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          if (input.sortType === "desc") {
+            allUsersForToday.sort((a, b) => {
+              if (a.name && b.name) {
+                return b.name.localeCompare(a.name);
+              }
+              if (a.name && !b.name) {
+                return 1;
+              }
+              if (!a.name && b.name) {
+                return -1;
+              }
+              return 0;
+            });
+          }
+        }
+
+
+
         return allUsersForToday;
     
       }
