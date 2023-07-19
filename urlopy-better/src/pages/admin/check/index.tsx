@@ -7,11 +7,25 @@ import { color } from "../[slug]";
 import { VacationStatus, WorkingType } from "@prisma/client";
 import { toPlType } from "~/pages/vacations";
 
+enum SortBy {
+  Type = "Type",
+  StartDate = "StartDate",
+  EndDate = "EndDate",
+  Name = "Name",
+  None = "None",
+}
+
+enum SortType {
+  Asc = "asc",
+  Desc = "desc",
+}
+
 export default function Page() {
   const [projectId, setProjectId] = useState<string>("");
+  const [sortBy, setSortBy] = useState<SortBy>(SortBy.None);
+  const [sortType, setSortType] = useState<SortType>(SortType.Asc);
   const { data: projects } = api.vacation.getAllProjectsF.useQuery({
     q: "",
-
   });
   useEffect(()=> {
     if (projects && projects[0] != undefined) {
@@ -22,6 +36,8 @@ export default function Page() {
   const { data: users } = api.vacation.getUsersForProjectForToday.useQuery({
     id: projectId,
     day: dayToCheck,
+    sortBy,
+    sortType,
   });
   // const { data: projectInfo } = api.admin.getAllInfoProject.useQuery({
   //   id: projectId,
@@ -34,7 +50,19 @@ export default function Page() {
   const projectIdChange = (e: string) => {
     setProjectId(e);
   };
-  
+  const setSort = (e: SortBy) => {
+    if (sortBy === e) {
+      if (sortType === SortType.Asc) {
+        setSortType(SortType.Desc);
+      } else {
+        setSortType(SortType.Asc);
+      }
+    } else {
+      setSortBy(e);
+      setSortType(SortType.Asc);
+    }
+    console.log(sortBy, sortType);
+  }
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
       <div className="flex w-full items-center">
@@ -91,15 +119,15 @@ export default function Page() {
         <table className="table">
           <thead>
             <tr className="text-lg text-white">
-              <th>Imię, Nazwisko</th>
-              <th>Data od</th>
-              <th>Data do</th>
-              <th>Typ</th>
+              <th onClick={() => setSort(SortBy.Name)}>Imię, Nazwisko</th>
+              <th onClick={() => setSort(SortBy.StartDate)}>Data od</th>
+              <th onClick={() => setSort(SortBy.EndDate)}>Data do</th>
+              <th onClick={() => setSort(SortBy.Type)}>Typ</th>
             </tr>
           </thead>
           <tbody>
             {users?.map((x) => (
-              <tr key={x.id} className={x.startDate ? "bg-red-950" : ""}>
+              <tr key={x.id + (x.startDate?.getDate() ?? 0).toString()} className={x.startDate ? "bg-red-950" : ""}>
                 <td>{x.name}</td>
                 <td>
                   {x.startDate ? (

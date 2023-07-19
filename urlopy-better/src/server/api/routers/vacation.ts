@@ -165,12 +165,36 @@ getAllProjectsF: protectedProcedure
     }),
     getUsersForProjectForToday: protectedProcedure.input(z.object({
         id: z.string(),
-        day: z.date()
+        day: z.date(),
+        sortBy: z.enum(["Type", "StartDate", "EndDate", "Name", "None"]),
+        sortType: z.enum(["asc", "desc"])
       })).query(async ({ ctx, input }) => {
         if (ctx.session.user.role !== "admin") {
           throw new Error("You are not admin");
         }
         const today = input.day
+        let orderBy = {};
+        if (input.sortBy === "Type") {
+          orderBy = {
+            workingType: input.sortType
+          };
+        }
+        if (input.sortBy === "StartDate") {
+          orderBy = {
+            startDate: input.sortType
+          };
+        }
+        if (input.sortBy === "EndDate") {
+          orderBy = {
+            endDate: input.sortType
+          };
+        }
+        if (input.sortBy === "Name") {
+          orderBy = {
+            name: input.sortType
+          };
+        }
+        
         const v = await ctx.prisma.vacation.findMany({
           where: {
             projectId: input.id,
@@ -183,7 +207,8 @@ getAllProjectsF: protectedProcedure
           },
           include: {
             user: true
-          }
+          },
+          orderBy: orderBy
         });
         const allUsers = await ctx.prisma.project.findUnique({
           where: {
