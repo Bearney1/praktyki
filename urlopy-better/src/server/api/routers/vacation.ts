@@ -232,12 +232,13 @@ getAllProjectsF: protectedProcedure
       ),
       getAllCountAndOnVacationCount: protectedProcedure.input(z.object({
         id: z.string(),
+        day: z.date()
       })).query(async ({ ctx, input }) => {
         interface Count {
           online: number;
           onVacation: number;
         }
-        const today = new Date();
+        const today = input.day;
         const project = await ctx.prisma.project.findUnique({
           where: {
             id: input.id

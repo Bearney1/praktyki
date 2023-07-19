@@ -17,6 +17,17 @@ import { IconX } from "@tabler/icons-react";
 //   office = "office",
 // }
 
+export const toPlType = (stat: WorkingType) => {
+  switch (stat) {
+    case "remote":
+      return "Praca zdalna";
+    case "vacation":
+      return "Nieobecność";
+    default:
+      return "Nieznany";
+  }
+};
+
 export default function Page() {
   const sesion = useSession();
   const [err, setErr] = useState<string>("");
@@ -200,16 +211,7 @@ export default function Page() {
     }
   }
 
-  const toPlType = (stat: WorkingType) => {
-    switch (stat) {
-      case "remote":
-        return "Zdalna praca";
-      case "vacation":
-        return "Urlop";
-      default:
-        return "Nieznany";
-    }
-  };
+  
   return (
     <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
       {err && (

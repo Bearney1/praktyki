@@ -4,7 +4,8 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
 import { color } from "../[slug]";
-import { VacationStatus } from "@prisma/client";
+import { VacationStatus, WorkingType } from "@prisma/client";
+import { toPlType } from "~/pages/vacations";
 
 export default function Page() {
   const [projectId, setProjectId] = useState<string>("");
@@ -27,6 +28,7 @@ export default function Page() {
   // });
   const { data: count } = api.vacation.getAllCountAndOnVacationCount.useQuery({
     id: projectId,
+    day: dayToCheck,
   });
 
   const projectIdChange = (e: string) => {
@@ -58,7 +60,7 @@ export default function Page() {
           radius="md"
           className="ml-4 max-w-md"
         />
-        <Link className="btn ml-8 h-full px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
+        <Link className="btn ml-4 h-full px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
       </div>
       <div className="mt-8 flex min-h-[150px] w-full rounded-2xl p-8 justify-center flex-col items-center">
         {/* <div className="text-4xl mb-4">{projectInfo?.name}</div> */}
@@ -113,7 +115,7 @@ export default function Page() {
                     <div> ---- </div>
                   )}
                 </td>
-                <td>{x.Type}</td>
+                <td>{toPlType(x.Type as WorkingType)}</td>
               </tr>
             ))}
           </tbody>
