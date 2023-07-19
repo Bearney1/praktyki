@@ -378,7 +378,7 @@ export default function Page() {
                     </td>
                     <td className="text-right">
                       
-                      <div className="dropdown-hover dropdown">
+                      {sesion.data?.user.role === "admin" && <div className="dropdown-hover dropdown">
                         <label
                           tabIndex={0}
                        className={`${color(vacation.status)} font-bold`}
@@ -400,7 +400,7 @@ export default function Page() {
                             <a>Item 2</a>
                           </li> */}
                         </ul>
-                      </div>
+                      </div>}
                     </td>
                   </tr>
                 ))}
