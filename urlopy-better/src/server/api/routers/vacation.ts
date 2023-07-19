@@ -137,9 +137,7 @@ export const vacationRouter = createTRPCRouter({
 getAllProjectsF: protectedProcedure
     .input(z.object({ q: z.string() }))
     .query(async ({ ctx, input }) => {
-      if (ctx.session.user.role !== "admin") {
-        throw new Error("You are not admin");
-      }
+      
       if (!input.q) {
         const projects = await ctx.prisma.project.findMany(
           {
@@ -169,9 +167,7 @@ getAllProjectsF: protectedProcedure
         sortBy: z.enum(["Type", "StartDate", "EndDate", "Name", "None"]),
         sortType: z.enum(["asc", "desc"])
       })).query(async ({ ctx, input }) => {
-        if (ctx.session.user.role !== "admin") {
-          throw new Error("You are not admin");
-        }
+       
         const today = input.day
         let orderBy = {};
         if (input.sortBy === "Type") {

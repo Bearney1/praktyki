@@ -3,8 +3,7 @@ import { DatePickerInput } from "@mantine/dates";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
-import { color } from "../[slug]";
-import { VacationStatus, WorkingType } from "@prisma/client";
+import { type WorkingType } from "@prisma/client";
 import { toPlType } from "~/pages/vacations";
 
 enum SortBy {
