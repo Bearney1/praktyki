@@ -29,6 +29,10 @@ export default function Page() {
   const { mutateAsync: addVacation } =
     api.vacation.createVacation.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
+
+  const {mutateAsync: updateStatus} = api.admin.updateStatus.useMutation();
+
+
   const color = (stat: VacationStatus) => {
     switch (stat) {
       case VacationStatus.approved:
@@ -162,7 +166,24 @@ export default function Page() {
       </div>
     );
   }
-
+  const getItemsForDropdown = (status: VacationStatus,id :string) => {
+    let out: unknown[] = [];
+    for (const x in VacationStatus) {
+      if (typeof x === "string") {
+        out = [
+        
+          (<li key={x}>
+            <a onClick={() => {
+              console.log(status, id)
+              updateStatus({id, status: x as VacationStatus}).then(() => refetch()).catch((e) => console.log(e))
+            }}>{x}</a>
+          </li>),
+            ...out,
+        ]
+      }
+    }
+    return out as JSX.Element[];
+  }
   const toPlVac = (stat: VacationStatus) => {
     switch (stat) {
       case "approved":
@@ -318,7 +339,7 @@ export default function Page() {
               </div>
             </div>
           </div>
-          <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+          <div className="relative shadow-md sm:rounded-lg">
             <table className="text-md table">
               <thead className="text-xl text-white">
                 <tr>
@@ -351,10 +372,32 @@ export default function Page() {
                       }`}
                     >
                       {toPlType(vacation.workingType)}
+                     
                     </td>
                     <td className="text-right">
-                      <div className={`${color(vacation.status)} font-bold`}>
-                        {toPlVac(vacation.status)}
+                      
+                      <div className="dropdown-hover dropdown">
+                        <label
+                          tabIndex={0}
+                       className={`${color(vacation.status)} font-bold`}
+                        >
+                           {toPlVac(vacation.status)}
+                        </label>
+                        <ul
+                          tabIndex={0}
+                          className="dropdown-content menu rounded-box z-[1] w-44 bg-base-100 p-2 shadow"
+                        >
+                          {
+                            getItemsForDropdown(
+                              vacation.status , vacation.id)
+                          }
+                          {/* <li>
+                            <a>Item 1</a>
+                          </li>
+                          <li>
+                            <a>Item 2</a>
+                          </li> */}
+                        </ul>
                       </div>
                     </td>
                   </tr>

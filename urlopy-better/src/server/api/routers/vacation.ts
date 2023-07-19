@@ -27,7 +27,7 @@ export const vacationRouter = createTRPCRouter({
             }
         },
         distinct: ["startDate", "endDate", "reason", "workingType"],
-        
+
         orderBy: {
             startDate: "desc"
         }

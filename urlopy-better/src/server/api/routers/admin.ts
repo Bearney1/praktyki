@@ -81,15 +81,35 @@ export const adminRouter = createTRPCRouter({
     if (ctx.session.user.role !== "admin") {
       throw new Error("You are not admin");
     }
-    const vacation = await ctx.prisma.vacation.update({
+    const vacationWithThatId = await ctx.prisma.vacation.findFirst({
       where: {
         id: input.id
-      },
-      data: {
-        status: input.status as VacationStatus
       }
     });
-    return vacation;
+    if (!vacationWithThatId) {
+      throw new Error("There is no vacation with that id");
+    }
+    const vacationsThatHaveSameData = await ctx.prisma.vacation.findMany({
+      where: {
+        startDate: vacationWithThatId.startDate,
+        endDate: vacationWithThatId.endDate,
+        reason: vacationWithThatId.reason,
+        workingType: vacationWithThatId.workingType 
+      }
+    });
+    if (!vacationsThatHaveSameData) {
+      throw new Error("There is no vacation with that data");
+    }
+    for (let i = 0; i < vacationsThatHaveSameData.length; i++) {
+      await ctx.prisma.vacation.update({
+        where: {
+          id: vacationsThatHaveSameData[i]!.id
+        },
+        data: {
+          status: input.status
+        }
+      });
+    }
   }),
   createVacation: protectedProcedure.input(z.object({
     startDate: z.date(),

@@ -3,6 +3,8 @@ import { DatePickerInput } from "@mantine/dates";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { api } from "~/utils/api";
+import { color } from "../[slug]";
+import { VacationStatus } from "@prisma/client";
 
 export default function Page() {
   const [projectId, setProjectId] = useState<string>("");
@@ -30,7 +32,7 @@ export default function Page() {
   const projectIdChange = (e: string) => {
     setProjectId(e);
   };
-
+  
   return (
     <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
       <div className="flex w-full items-center">

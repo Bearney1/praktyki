@@ -24,6 +24,21 @@ interface User {
   image: string | null;
 }
 
+export const color = (stat: string) => {
+  switch (stat) {
+    case VacationStatus.approved:
+      return "text-green-300";
+    case VacationStatus.rejected:
+      return "text-red-300";
+    case VacationStatus.pending:
+      return "text-yellow-300";
+    case VacationStatus.new:
+      return "text-blue-300";
+    default:
+      return "text-gray-300";
+  }
+};
+
 export default function Page() {
   const router = useRouter();
   const sesion = useSession();
@@ -60,20 +75,7 @@ export default function Page() {
 
     const {mutateAsync: updateStatus} = api.admin.updateStatus.useMutation();
   const [opened, { open, close }] = useDisclosure(false);
-  const color = (stat: string) => {
-    switch (stat) {
-      case VacationStatus.approved:
-        return "text-green-300";
-      case VacationStatus.rejected:
-        return "text-red-300";
-      case VacationStatus.pending:
-        return "text-yellow-300";
-      case VacationStatus.new:
-        return "text-blue-300";
-      default:
-        return "text-gray-300";
-    }
-  };
+ 
 
   const form = useForm({
     initialValues: {
