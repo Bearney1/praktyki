@@ -20,6 +20,22 @@ enum SortType {
   Desc = "desc",
 }
 
+const toPlSortBy = (e: SortBy) => {
+  switch (e) {
+    case SortBy.Name:
+      return "Imię, Nazwisko";
+    case SortBy.StartDate:
+      return "Data od";
+    case SortBy.EndDate:
+      return "Data do";
+    case SortBy.Type:
+      return "Typ";
+    default:
+      return "";
+}
+}
+
+
 export default function Page() {
   const [projectId, setProjectId] = useState<string>("");
   const [sortBy, setSortBy] = useState<SortBy>(SortBy.None);
@@ -116,6 +132,11 @@ export default function Page() {
       </div>
       <div className="divider my-4"></div>
       <div className="min-h-[100px] w-full">
+        {sortBy != SortBy.None && <div>
+          <div>Sortowanie: <span className="font-extrabold">{toPlSortBy(sortBy)}</span></div>
+          <div>Kierunek: <span className="font-extrabold">{sortType === SortType.Asc? "Rosnąco" : "Malejąco"}</span></div>
+        
+          </div>}
         <table className="table">
           <thead>
             <tr className="text-lg text-white">

@@ -191,7 +191,9 @@ getAllProjectsF: protectedProcedure
         }
         if (input.sortBy === "Name") {
           orderBy = {
-            name: input.sortType
+            user: {
+              name: input.sortType
+            }
           };
         }
         
