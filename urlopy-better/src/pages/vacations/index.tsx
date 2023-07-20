@@ -34,7 +34,7 @@ export default function Page() {
   const { data: projects, error: errorProjects } =
     api.vacation.getAllProjects.useQuery();
   const { data, status, refetch } = api.vacation.getAllForUser.useQuery();
-  const { data: belongsTo } =
+  const { data: belongsTo, isLoading } =
     api.vacation.checkIfUserBelongsToAnyProject.useQuery();
 
   const { mutateAsync: addVacation } =
@@ -157,7 +157,16 @@ export default function Page() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     setMinDate(tomorrow);
   }, [])
-  
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+        <div className="container mx-auto py-10">
+          <div className="text-4xl">Loading...</div>
+          <span className="loading loading-lg"></span>
+        </div>
+      </div>
+    );
+  }
   if (!belongsTo) {
     return (
       <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
@@ -341,7 +350,7 @@ export default function Page() {
             </div>
           </div>
           <div className="relative shadow-md sm:rounded-lg">
-            <table className="text-md max-md:block md:table max-md:overflow-y-hidden w-full border-separate font-semibold">
+            <table className="text-md max-md:block md:table max-md:overflow-x-scroll max-md:overflow-y-visible w-full border-separate font-semibold">
               <thead className="text-xl text-white">
                 <tr>
                   <th scope="col">Start</th>
@@ -386,7 +395,7 @@ export default function Page() {
                         </label>
                         <ul
                           tabIndex={0}
-                          className="dropdown-content menu rounded-box z-[1] w-44 bg-base-100 p-2 shadow"
+                          className="dropdown-content menu rounded-box z-[1] w-44 bg-base-100 p-2 shadow max-md:hidden"
                         >
                           {
                             getItemsForDropdown(

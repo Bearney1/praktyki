@@ -79,7 +79,7 @@ export default function Page() {
     console.log(sortBy, sortType);
   }
   return (
-    <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
+    <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-2 md:p-24 text-center font-semibold text-white">
       <div className="flex w-full items-center">
         {/* <TextInput size='md' w="100%" radius="md"/> */}
         <Select
@@ -103,7 +103,7 @@ export default function Page() {
           radius="md"
           className="ml-4 max-w-md"
         />
-        <Link className="btn ml-4 h-full px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
+        <Link className="btn ml-4 h-full md:px-8 text-white bg-[#25262b]" href="/vacations">Powrót</Link>
       </div>
       <div className="mt-8 flex min-h-[150px] w-full rounded-2xl p-8 justify-center flex-col items-center">
         {/* <div className="text-4xl mb-4">{projectInfo?.name}</div> */}
@@ -136,7 +136,7 @@ export default function Page() {
           <div>Kierunek: <span className="font-extrabold">{sortType === SortType.Asc? "Rosnąco" : "Malejąco"}</span></div>
         
           </div>}
-        <table className="table">
+        <table className="md:table">
           <thead>
             <tr className="text-lg text-white">
               <th onClick={() => setSort(SortBy.Name)}>Imię, Nazwisko</th>
