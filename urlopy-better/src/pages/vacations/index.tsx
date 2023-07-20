@@ -213,7 +213,7 @@ export default function Page() {
 
   
   return (
-    <div className="flex min-h-screen flex-col bg-neutral-900 text-center font-semibold text-white">
+    <div className="flex min-h-screen flex-col bg-neutral-900 w-screen items-center md:overflow-hidden">
       {err && (
         <Notification
           withCloseButton={false}
@@ -227,8 +227,7 @@ export default function Page() {
         </Notification>
       )}
       {status == "success" && (
-        <div className="container mx-auto py-10">
-          {/* <dialog ref={ref} className="modal"> */}
+        <div className="container mx-auto md:py-10 max-md:mt-4 max-md:px-0">
 
           <Modal opened={opened} onClose={close} radius="lg">
               <div className="mb-4 text-2xl font-bold text-white">
@@ -278,7 +277,7 @@ export default function Page() {
               </button>
           </Modal>
 
-          <div className="flex justify-between">
+          <div className="flex md:justify-between max-md:flex-col max-md:items-center">
             <div className="dropdown">
               <label tabIndex={0}>
                 <div className="avatar">
@@ -315,7 +314,7 @@ export default function Page() {
               </ul>
             </div>
             <div>
-              <div className="flex">
+              <div className="flex max-md:flex-col">
                 {sesion.data?.user.role === "admin" && (
                     <Link
                       className="btn mb-4 ml-4 mt-1 bg-[#25262b] text-white"
@@ -342,7 +341,7 @@ export default function Page() {
             </div>
           </div>
           <div className="relative shadow-md sm:rounded-lg">
-            <table className="text-md table">
+            <table className="text-md max-md:block md:table max-md:overflow-y-hidden w-full border-separate font-semibold">
               <thead className="text-xl text-white">
                 <tr>
                   <th scope="col">Start</th>
@@ -357,13 +356,13 @@ export default function Page() {
               <tbody>
                 {data.map((vacation) => (
                   <tr key={vacation.id}>
-                    <th scope="row" className=" text-white">
+                    <td className=" text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.startDate)}
-                    </th>
+                    </td>
                     <td className="text-white">
                       {Intl.DateTimeFormat("pl-PL").format(vacation.endDate)}
                     </td>
-                    <td className="max-w-[150px] overflow-x-auto text-white">
+                    <td className="text-white">
                       {vacation.reason}
                     </td>
                     <td
