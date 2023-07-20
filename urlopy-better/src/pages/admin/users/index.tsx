@@ -12,9 +12,10 @@ export default function Index() {
   const session = useSession();
   const { data, status, error, refetch } = api.admin.getAllUsers.useQuery();
   const [q, setq] = useState("");
-  const { data: projects, refetch:refetchProjects } = api.admin.getAllProjects.useQuery({ q });
+  const { data: projects, refetch: refetchProjects } =
+    api.admin.getAllProjects.useQuery({ q });
   const { mutateAsync: changeRole } = api.admin.changeUserRole.useMutation();
-  const {mutateAsync: createProject} = api.admin.createProject.useMutation()
+  const { mutateAsync: createProject } = api.admin.createProject.useMutation();
   const handleChangeRole = async (id: string, checked: boolean) => {
     await changeRole({ id, role: checked ? "admin" : "user" });
     await refetch();
@@ -27,74 +28,80 @@ export default function Index() {
     initialValues: {
       name: "",
     },
-  })
-  
-  const handleSubmit = (values: {
-    name: string;
-}) => {
-  ref.current?.close()
-   const x =async () => {
-    await createProject({
-      name: values.name
-    })
-    await refetchProjects()
-   }
-   void x()
+  });
 
-  }
+  const handleSubmit = (values: { name: string }) => {
+    ref.current?.close();
+    const x = async () => {
+      await createProject({
+        name: values.name,
+      });
+      await refetchProjects();
+    };
+    void x();
+  };
   return (
-    <div className="flex min-h-screen flex-col items-center bg-neutral-900 p-24 text-center font-semibold text-white">
+    <div className="flex min-h-screen flex-col items-center bg-neutral-900 text-center font-semibold text-white max-md:pt-3 md:p-24">
       <div className="flex w-full justify-between px-4">
-      <div className="dropdown">
-              <label tabIndex={0}  >
-                <div className="avatar">
-                    <div className="h-12 w-12">
-                    {session.data?.user.image && (
- <Image
-                        src={session.data?.user.image}
-                        alt="avatar"
-                       fill
-                       className="rounded-full"
-                      />
-                    )}
-
-           
-                  </div>
-                </div>
-              </label>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
-              >
-                <li>
-                  <Link href="/admin">Select project</Link>
-                </li>
-                <li>
-                  <div
-                    onClick={() => {
-                      signOut().catch((e) => console.log(e));
-                    }}
-                  >
-                    Logout
-                  </div>
-                </li>
-              </ul>
+        <div className="dropdown">
+          <label tabIndex={0}>
+            <div className="avatar">
+              <div className="h-12 w-12">
+                {session.data?.user.image && (
+                  <Image
+                    src={session.data?.user.image}
+                    alt="avatar"
+                    fill
+                    className="rounded-full"
+                  />
+                )}
+              </div>
             </div>
+          </label>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu rounded-box z-[1] w-52 bg-neutral-800 p-2 shadow"
+          >
+            <li>
+              <Link href="/admin">Select project</Link>
+            </li>
+            <li>
+              <div
+                onClick={() => {
+                  signOut().catch((e) => console.log(e));
+                }}
+              >
+                Logout
+              </div>
+            </li>
+          </ul>
+        </div>
         <div>
-        <Link className="btn mr-4 text-white" href="/vacations">Powrót</Link>
-        <button className="btn text-white" onClick={() => ref.current?.showModal()}>Utwórz projekt</button>
+          <Link className="btn mr-4 text-white" href="/vacations">
+            Powrót
+          </Link>
+          <button
+            className="btn text-white"
+            onClick={() => ref.current?.showModal()}
+          >
+            Utwórz projekt
+          </button>
         </div>
       </div>
       <dialog ref={ref} className="modal">
-        <form method="dialog" className="modal-box" onSubmit={form.onSubmit(handleSubmit)}>
-          <h3 className="text-lg font-bold mb-4">Dodawanie projektu</h3>
-       
-            <Input
+        <form
+          method="dialog"
+          className="modal-box"
+          onSubmit={form.onSubmit(handleSubmit)}
+        >
+          <h3 className="mb-4 text-lg font-bold">Dodawanie projektu</h3>
+
+          <Input
             placeholder="Nazwa projektu"
             required
-            {...form.getInputProps('name')}
-            />
-         
+            {...form.getInputProps("name")}
+          />
+
           <div className="modal-action">
             <button className="btn">Dodaj</button>
           </div>
@@ -104,7 +111,7 @@ export default function Index() {
         <span className="loading loading-spinner loading-lg"></span>
       )}
       {status === "error" && <span>Error: {error.message}</span>}
-      <table className="table">
+      <table className="table w-full max-md:table-sm max-md:block max-md:overflow-x-scroll">
         <thead>
           <tr>
             <th>Imię</th>
